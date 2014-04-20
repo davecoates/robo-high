@@ -1,6 +1,6 @@
 SRCS = main.cpp robo.cpp
 OBJS = $(SRCS:%.cpp=../obj/%.o)
-LDFLAGS =-lsfml-graphics -lsfml-window -lsfml-system
+LDFLAGS =-lsfml-graphics -lsfml-window -lsfml-system -lBox2d
 CXXFLAGS = -c -Wall -std=c++11
 
 TARGET = ../bin/robo-high
@@ -21,3 +21,6 @@ dirs:
 .PHONY: clean
 clean:
 	-rm -r ../obj ../bin
+
+dependencies:
+	brew install sfml box2d
