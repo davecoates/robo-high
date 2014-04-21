@@ -1,16 +1,11 @@
-#ifndef __ROBO_H_
-#define __ROBO_H_
+#pragma once
 
 #include <SFML/Graphics.hpp>
+#include "entity.hpp"
 
 namespace RH {
 
-    class Entity : public sf::Drawable,  public sf::Transformable {
-        public:
-            virtual void update(const sf::Time &t) = 0;
-    };
-
-    class Robo :  public Entity {
+    class Robo : public Entity, public sf::Drawable,  public sf::Transformable {
         private:
             sf::RectangleShape shape;
             sf::CircleShape circle;
@@ -28,4 +23,3 @@ namespace RH {
     };
 
 }
-#endif // __ROBO_H_

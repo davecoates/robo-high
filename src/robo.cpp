@@ -1,6 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include "robo.hpp"
-#include <math.h>
+#include "entity.hpp"
+#include "components/position.hpp"
+#include "components/renderable.hpp"
+#include <cmath>
 #include <iostream>
 
 namespace RH {
@@ -22,26 +25,35 @@ namespace RH {
         //shape.setOutlineColor(sf::Color::Magenta);
         shape.setPosition(0.f, 10.f);
 
-        if (!texture.loadFromFile("../resources/test.png")) {
+        if (!texture.loadFromFile("../resources/wheel.png")) {
             throw std::runtime_error("Couldn't load texture");
         }
         shape.setTexture(&texture);
 
-        if (!shader.loadFromFile("../resources/pixelate.frag", sf::Shader::Fragment)) {
+        if (!shader.loadFromFile("../resources/bloom.frag", sf::Shader::Fragment)) {
             throw std::runtime_error("Couldn't load shader");
         }
-        shader.setParameter("texture", sf::Shader::CurrentTexture);
+        shader.setParameter("sourceTexture", sf::Shader::CurrentTexture);
         circle.setTexture(&texture);
 
-        circle.setRadius(5.f);
+        circle.setRadius(3.f);
         //circle.setFillColor(sf::Color::Red);
-        circle.setOrigin(5.f, 5.f);
+        circle.setOrigin(3.f, 3.f);
         //circle.setOutlineThickness(1.f);
         //circle.setOutlineColor(sf::Color::Magenta);
+        this->add_component<RHComponents::Position>();
+
+        auto a = this->add_component<RHComponents::Renderable>();
+        a->drawable = &shape;
+        auto b = this->add_component<RHComponents::Renderable>();
+        b->drawable = &circle;
     }
 
     void Robo::update(const sf::Time &t) {
-        shader.setParameter("blur_radius", 0.03f);
+        //shader.setParameter("blur_radius", 0.03f);
+        shader.setParameter("sigma", 5.5f);
+        shader.setParameter("glowMultiplier", 1.5f);
+        shader.setParameter("width", 500.f);
         circle.setRotation(t.asSeconds()*1000);
     }
 

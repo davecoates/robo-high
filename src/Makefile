@@ -1,4 +1,4 @@
-SRCS = main.cpp robo.cpp
+SRCS = main.cpp robo.cpp app.cpp entitymanager.cpp component.cpp
 OBJS = $(SRCS:%.cpp=../obj/%.o)
 LDFLAGS =-lsfml-graphics -lsfml-window -lsfml-system -lBox2d
 CXXFLAGS = -c -Wall -std=c++11
