@@ -5,49 +5,10 @@
 #include <typeinfo>
 #include "entitymanager.hpp"
 #include <iostream>
-#include <Box2D/Box2D.h>
 
 using namespace std;
 
 namespace RH {
-
-    // Convert b/w world and pixel coordinates
-    static const float SCALE = 30.f;
-
-    b2Body* CreateGround(b2World& World, float X, float Y)
-    {
-        b2BodyDef BodyDef;
-        BodyDef.position = b2Vec2(X/SCALE, Y/SCALE);
-        BodyDef.type = b2_staticBody;
-        b2Body* Body = World.CreateBody(&BodyDef);
-
-        b2PolygonShape Shape;
-        Shape.SetAsBox((800.f/2)/SCALE, (16.f/2)/SCALE);
-        b2FixtureDef FixtureDef;
-        FixtureDef.density = 0.f;
-        FixtureDef.shape = &Shape;
-        Body->CreateFixture(&FixtureDef);
-
-        return Body;
-    }
-
-
-void CreateBox(b2World& World, int MouseX, int MouseY)
-{
-    b2BodyDef BodyDef;
-    BodyDef.position = b2Vec2(MouseX/SCALE, MouseY/SCALE);
-    BodyDef.type = b2_dynamicBody;
-    b2Body* Body = World.CreateBody(&BodyDef);
-
-    b2PolygonShape Shape;
-    Shape.SetAsBox((32.f/2)/SCALE, (32.f/2)/SCALE);
-    b2FixtureDef FixtureDef;
-    FixtureDef.density = 1.f;
-    FixtureDef.friction = 0.7f;
-    FixtureDef.shape = &Shape;
-    Body->CreateFixture(&FixtureDef);
-}
-
 
     std::unique_ptr<Application> Application::instance_;
 
@@ -88,20 +49,7 @@ void CreateBox(b2World& World, int MouseX, int MouseY)
 
         robo->setPosition(20.0f, 15.f);
 
-
-
-        b2Vec2 Gravity(0.f, 9.8f);
-        b2World World(Gravity);
-        auto ground = CreateGround(World, 400.f, 500.f);
-
         sf::Clock clock;
-
-        sf::Texture GroundTexture;
-        sf::Texture BoxTexture;
-        GroundTexture.loadFromFile("../resources/ground.png");
-        BoxTexture.loadFromFile("../resources/box.png");
-
-        std::cout << "Position: " << Component<RHComponents::Renderable>::get_group_id() << std::endl;
 
         while (window_->isOpen())
         {
@@ -121,45 +69,6 @@ void CreateBox(b2World& World, int MouseX, int MouseY)
                 }
 
             }
-
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                int MouseX = sf::Mouse::getPosition(*window_).x;
-                int MouseY = sf::Mouse::getPosition(*window_).y;
-                CreateBox(World, MouseX, MouseY);
-            }
-
-            World.Step(1/60.f, 8, 3);
-
-            ////
-
-            World.Step(1/60.f, 8, 3);
-
-            window_->clear(sf::Color::White);
-            int BodyCount = 0;
-            for (b2Body* BodyIterator = World.GetBodyList(); BodyIterator != 0; BodyIterator = BodyIterator->GetNext())
-            {
-                if (BodyIterator->GetType() == b2_dynamicBody)
-                {
-                    sf::Sprite Sprite;
-                    Sprite.setTexture(BoxTexture);
-                    Sprite.setOrigin(16.f, 16.f);
-                    Sprite.setPosition(SCALE * BodyIterator->GetPosition().x, SCALE * BodyIterator->GetPosition().y);
-                    Sprite.setRotation(BodyIterator->GetAngle() * 180/b2_pi);
-                    window_->draw(Sprite);
-                    ++BodyCount;
-                }
-                else
-                {
-                }
-            }
-
-                    sf::Sprite GroundSprite;
-                    GroundSprite.setTexture(GroundTexture);
-                    GroundSprite.setOrigin(400.f, 8.f);
-                    GroundSprite.setPosition(ground->GetPosition().x * SCALE, ground->GetPosition().y * SCALE);
-                    GroundSprite.setRotation(180/b2_pi * ground->GetAngle());
-                    window_->draw(GroundSprite);
-
 
             // TODO: Just a test. This is basically a system - in this case the
             // render system
