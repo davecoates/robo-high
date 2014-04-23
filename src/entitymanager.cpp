@@ -7,7 +7,9 @@ namespace RH {
     ///////////////////////////////////////////////////////////////////////////
     EntityManager *EntityManager::get_instance() {
         if (!instance_) {
-            instance_.reset(new EntityManager());
+            auto em = new EntityManager();
+            em->next_entity_id_ = 0;
+            instance_.reset(em);
         }
         return instance_.get();
     }

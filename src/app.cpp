@@ -1,7 +1,9 @@
 #include "app.hpp"
 #include "constants.hpp"
 #include "components/renderable.hpp"
+#include "components/position.hpp"
 #include "robo.hpp"
+#include "world.hpp"
 #include <typeinfo>
 #include "entitymanager.hpp"
 #include <iostream>
@@ -44,10 +46,12 @@ namespace RH {
         //window_->setView(view);
 
         auto em = EntityManager::get_instance();
+        std::cout << em->generate_entity() << "#\n";
+        std::cout << em->generate_entity() << "#\n";
 
         auto robo = em->create_entity<Robo>();
-
-        robo->setPosition(20.0f, 15.f);
+        auto world = World::get_instance();
+        world->create_body(20.0f, 15.f, robo);
 
         sf::Clock clock;
 
@@ -70,8 +74,8 @@ namespace RH {
 
             }
 
-            // TODO: Just a test. This is basically a system - in this case the
-            // render system
+            window_->clear(sf::Color::White);
+
             for (auto renderable : em->get_entities()) {
                 auto components = renderable->get_components<RHComponents::Renderable>();
                 for (auto component : components) {
@@ -80,6 +84,27 @@ namespace RH {
                 //renderable->update(clock.getElapsedTime());
                 //window_->draw(*renderable);
             }
+
+            world->step();
+
+            // TODO: Just a test. This is basically a system - in this case the
+            // render system
+            for (auto renderable : em->get_entities()) {
+
+                // This is a mess right now
+                auto positions = renderable->get_components<RHComponents::Position>();
+                auto pos = positions[0];
+                auto transform = pos->transformable->getTransform();
+
+                auto components = renderable->get_components<RHComponents::Renderable>();
+                for (auto component : components) {
+                    window_->draw(*component->drawable, transform);
+                }
+                std::cout << "!" ;
+                //renderable->update(clock.getElapsedTime());
+                //window_->draw(*renderable);
+            }
+            std::cout << '\n';
 
             window_->display();
         }
