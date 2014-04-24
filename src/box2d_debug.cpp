@@ -1,7 +1,7 @@
 #include "box2d_debug.hpp"
 #include <iostream>
 
-namespace RH {
+namespace rh {
 
     sf::Color convert_color(const b2Color &c) {
         return sf::Color(

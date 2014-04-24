@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include  "component.hpp"
 
-namespace RH {
+namespace rh {
 
     class Entity 
     {

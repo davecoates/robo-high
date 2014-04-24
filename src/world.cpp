@@ -1,9 +1,10 @@
 #include "world.hpp"
-#include "components/position.hpp"
+#include "components/transformable.hpp"
+#include "components/physics.hpp"
 #include "entitymanager.hpp"
 #include <iostream>
 
-namespace RH {
+namespace rh {
 
 
     std::unique_ptr<World> World::instance_;
@@ -28,14 +29,14 @@ namespace RH {
         auto em = EntityManager::get_instance();
 
         for (b2Body* it = world_.GetBodyList(); it; it = it->GetNext()) {
-            auto entity = (RH::EntityID*)it->GetUserData();
-            auto position = em->get_component<RHComponents::Position>(*entity);
-            if (position) {
+            auto entity = (rh::EntityID*)it->GetUserData();
+            rh::components::Physics* _ = nullptr;
+            rh::components::Transformable* position = nullptr;
+            auto has_all = em->get_components<rh::components::Physics, rh::components::Transformable>(*entity, _, position);
+            if (has_all) {
                 auto new_pos = it->GetPosition();
-                position->x = new_pos.x;
-                position->y = new_pos.y;
                 if (position->transformable) {
-                    position->transformable->setPosition(position->x, position->y);
+                    position->transformable->setPosition(new_pos.x, new_pos.y);
                     position->transformable->setRotation(it->GetAngle() * 180.f/b2_pi);
                 }
             }

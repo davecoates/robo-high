@@ -2,7 +2,7 @@
 #include <Box2d/Box2D.h>
 #include <SFML/Graphics.hpp>
 
-namespace RH {
+namespace rh {
 
     class Box2dDebugDraw : public b2Draw
     {

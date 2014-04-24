@@ -1,6 +1,6 @@
 #include "component.hpp"
 
-namespace RH {
+namespace rh {
 
     ComponentGroupId BaseComponent::group_id_counter_ = 0;
 

@@ -1,6 +1,6 @@
 #include "entitymanager.hpp"
 
-namespace RH {
+namespace rh {
 
     std::unique_ptr<EntityManager> EntityManager::instance_;
 

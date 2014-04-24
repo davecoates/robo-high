@@ -5,7 +5,7 @@
 #include "entity.hpp"
 
 
-namespace RH {
+namespace rh {
 
 
     /**

@@ -3,16 +3,18 @@
 #include "../component.hpp"
 #include <SFML/Graphics.hpp>
 
-namespace RHComponents {
-    struct Position : public RH::Component<Position> {
+namespace rh {
+    namespace components {
+        struct Position : public rh::Component<Position> {
 
-        Position(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
+            Position(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
 
-        float x, y;
+            float x, y;
 
-        // TODO: What about things that have a position but are not drawn?
-        // New component Transformable?
-        sf::Transformable *transformable;
+            // TODO: What about things that have a position but are not drawn?
+            // New component Transformable?
+            sf::Transformable *transformable;
 
-    };
+        };
+    }
 }

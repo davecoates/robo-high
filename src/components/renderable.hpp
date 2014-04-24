@@ -2,15 +2,16 @@
 
 #include "../component.hpp"
 #include <SFML/Graphics.hpp>
-#include <vector>
 
-namespace RHComponents {
+namespace rh {
+    namespace components {
 
-    struct Renderable : public RH::Component<Renderable> {
-    
-        Renderable(sf::Drawable *drawable = nullptr) : drawable(drawable) {}
+        struct Renderable : public rh::Component<Renderable> {
 
-        sf::Drawable *drawable;
+            Renderable(sf::Drawable *drawable = nullptr) : drawable(drawable) {}
 
-    };
+            sf::Drawable *drawable;
+
+        };
+    }
 }

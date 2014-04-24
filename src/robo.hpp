@@ -3,9 +3,9 @@
 #include <SFML/Graphics.hpp>
 #include "entity.hpp"
 
-namespace RH {
+namespace rh {
 
-    class Robo : public Entity, public sf::Drawable,  public sf::Transformable {
+    class Robo : public sf::Drawable,  public sf::Transformable {
         private:
             sf::RectangleShape shape;
             sf::CircleShape circle;

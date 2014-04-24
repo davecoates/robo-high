@@ -10,25 +10,25 @@
 int main()
 {
 /*    std::cout << "Hi\n";*/
-    //auto em = RH::EntityManager::get_instance();
+    //auto em = rh::EntityManager::get_instance();
     //auto id = em->generate_entity();
-    //em->add_component<RHComponents::Position>(id, 3, 5);
-    //em->add_component<RHComponents::Physics>(id, 8, 8);
-    //auto pos = em->get_component<RHComponents::Position>(id);
+    //em->add_component<rh::components::Position>(id, 3, 5);
+    //em->add_component<rh::components::Physics>(id, 8, 8);
+    //auto pos = em->get_component<rh::components::Position>(id);
     //std::cout << pos->x << " " << pos->y << '\n';
     //pos->x = 5;
-    //pos = em->get_component<RHComponents::Position>(id);
+    //pos = em->get_component<rh::components::Position>(id);
     //std::cout << pos->x << " " << pos->y << "\n";
-    //em->add_component<RHComponents::Renderable>(id);
-    //RHComponents::Position *p1 = nullptr;
-    //RHComponents::Physics *p2 = nullptr;
-    //RHComponents::Renderable *p3 = nullptr;
-    //auto has_all = em->get_components<RHComponents::Position, RHComponents::Physics, RHComponents::Renderable>(id, p1, p2, p3);
+    //em->add_component<rh::components::Renderable>(id);
+    //rh::components::Position *p1 = nullptr;
+    //rh::components::Physics *p2 = nullptr;
+    //rh::components::Renderable *p3 = nullptr;
+    //auto has_all = em->get_components<rh::components::Position, rh::components::Physics, rh::components::Renderable>(id, p1, p2, p3);
     //std::cout << "Has all? " << has_all << std::endl;
     /*std::cout << p1->x << " " << p1->y << " " << p2->x << " " << p2->y << std::endl;*/
-    auto app = RH::Application::get_instance();
+    auto app = rh::Application::get_instance();
 
-    app->init("Robo High", RH::SCREEN_RESOLUTION_W, RH::SCREEN_RESOLUTION_H, 32, true);
+    app->init("Robo High", rh::SCREEN_RESOLUTION_W, rh::SCREEN_RESOLUTION_H, 32, true);
     app->run();
 
     

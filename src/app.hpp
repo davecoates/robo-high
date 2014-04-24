@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace RH {
+namespace rh {
 
     class Application {
         public:

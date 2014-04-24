@@ -2,7 +2,8 @@
 #include "app.hpp"
 #include "constants.hpp"
 #include "components/renderable.hpp"
-#include "components/position.hpp"
+#include "components/transformable.hpp"
+#include "components/physics.hpp"
 #include "world.hpp"
 #include <typeinfo>
 #include "entitymanager.hpp"
@@ -10,7 +11,7 @@
 
 using namespace std;
 
-namespace RH {
+namespace rh {
 
     std::unique_ptr<Application> Application::instance_;
 
@@ -40,7 +41,7 @@ namespace RH {
     void Application::run()
     {
         sf::View view;
-        sf::FloatRect viewRect(0, 0, 100, 100 * RH::SCREEN_RESOLUTION_RATIO);
+        sf::FloatRect viewRect(0, 0, 100, 100 * rh::SCREEN_RESOLUTION_RATIO);
         view.reset(viewRect);
         window_->setView(view);
 
@@ -69,24 +70,22 @@ namespace RH {
         body->CreateFixture(&FixtureDef);
 
 
-        auto robo_head = em->add_component<RHComponents::Renderable>(robo_id);
         auto shape = new sf::CircleShape(1.0f);
         shape->setFillColor(sf::Color::Red);
-        robo_head->drawable = shape;
-        auto pos = em->add_component<RHComponents::Position>(robo_id, 20, 1);
-        pos->transformable = shape;
+        em->add_component<rh::components::Renderable>(robo_id, shape);
+        em->add_component<rh::components::Transformable>(robo_id, shape);
+        em->add_component<rh::components::Physics>(robo_id);
         //
 
         // Create the ground
         //
         auto ground_id = em->generate_entity();
-        auto ground_pos = em->add_component<RHComponents::Position>(ground_id);
-        auto ground_drawable = em->add_component<RHComponents::Renderable>(ground_id);
         auto ground_shape = new sf::RectangleShape(sf::Vector2f(20.f, 2.f));
         ground_shape->setOrigin(10, 1.f);
         ground_shape->setFillColor(sf::Color::Green);
-        ground_drawable->drawable = ground_shape;
-        ground_pos->transformable = ground_shape;
+        em->add_component<rh::components::Transformable>(ground_id, ground_shape);
+        em->add_component<rh::components::Renderable>(ground_id, ground_shape);
+        em->add_component<rh::components::Physics>(ground_id);
 
         b2BodyDef body_def;
         body_def.position = b2Vec2(0.f, 10.f);
@@ -132,10 +131,10 @@ namespace RH {
             world->step();
 
             for (auto entity_id : em->get_entities()) {
-                RHComponents::Position *p1 = nullptr;
-                RHComponents::Renderable *p3 = nullptr;
+                rh::components::Transformable *p1 = nullptr;
+                rh::components::Renderable *p3 = nullptr;
 
-                em->get_components<RHComponents::Position, RHComponents::Renderable>(entity_id, p1, p3);
+                em->get_components<rh::components::Transformable, rh::components::Renderable>(entity_id, p1, p3);
                 if (p3) {
                     window_->draw(*p3->drawable);
                 }

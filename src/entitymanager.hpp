@@ -8,14 +8,14 @@
 #include "component.hpp"
 #include "constants.hpp"
 
-namespace RH {
+namespace rh {
 
     typedef unsigned int EntityID;
 
     class EntityManager {
 
         typedef std::vector<std::shared_ptr<Entity>> EntityVector;
-        typedef std::bitset<RH::MAX_COMPONENTS> ComponentMask;
+        typedef std::bitset<rh::MAX_COMPONENTS> ComponentMask;
 
         private:
             EntityVector entities_;

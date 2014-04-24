@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-namespace RH {
+namespace rh {
 
     void Robo::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
@@ -41,13 +41,6 @@ namespace RH {
         circle.setOrigin(3.f, 3.f);
         //circle.setOutlineThickness(1.f);
         //circle.setOutlineColor(sf::Color::Magenta);
-        auto p = this->add_component<RHComponents::Position>();
-        p->transformable = this;
-
-        auto a = this->add_component<RHComponents::Renderable>();
-        a->drawable = &shape;
-        auto b = this->add_component<RHComponents::Renderable>();
-        b->drawable = &circle;
     }
 
     void Robo::update(const sf::Time &t) {

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace RH {
+namespace rh {
 
     typedef unsigned int ComponentGroupId;
 
