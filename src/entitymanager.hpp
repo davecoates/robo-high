@@ -10,11 +10,12 @@
 
 namespace RH {
 
+    typedef unsigned int EntityID;
+
     class EntityManager {
 
         typedef std::vector<std::shared_ptr<Entity>> EntityVector;
         typedef std::bitset<RH::MAX_COMPONENTS> ComponentMask;
-        typedef unsigned int EntityID;
 
         private:
             EntityVector entities_;
@@ -156,7 +157,13 @@ namespace RH {
 
             static EntityManager *get_instance();
 
-            const EntityVector& get_entities() { return entities_; }
+            const std::vector<EntityID> get_entities() { 
+                std::vector<EntityID> ids;
+                for (uint i=0;i<component_masks_.size();i++) {
+                    ids.push_back(i);
+                }
+                return ids; 
+            }
 
 
     };

@@ -1,0 +1,3 @@
+- Start thinking about loading level data from files
+- Refactor components and add proper systems
+- Think about how components like renderables, position and physics all tie together

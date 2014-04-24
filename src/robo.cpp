@@ -41,7 +41,8 @@ namespace RH {
         circle.setOrigin(3.f, 3.f);
         //circle.setOutlineThickness(1.f);
         //circle.setOutlineColor(sf::Color::Magenta);
-        this->add_component<RHComponents::Position>();
+        auto p = this->add_component<RHComponents::Position>();
+        p->transformable = this;
 
         auto a = this->add_component<RHComponents::Renderable>();
         a->drawable = &shape;
