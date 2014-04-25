@@ -1,13 +1,15 @@
+#include <typeinfo>
+#include <iostream>
+
 #include "box2d_debug.hpp"
 #include "app.hpp"
 #include "constants.hpp"
 #include "components/renderable.hpp"
 #include "components/transformable.hpp"
 #include "components/physics.hpp"
+#include "robo.hpp"
 #include "world.hpp"
-#include <typeinfo>
 #include "entitymanager.hpp"
-#include <iostream>
 
 using namespace std;
 
@@ -51,13 +53,17 @@ namespace rh {
 
         auto world = World::get_instance();
 
-        // Create robo
         auto robo_id = em->generate_entity();
+        auto robo = new Robo(robo_id);
+
+
+
+        auto circle_id = em->generate_entity();
         b2BodyDef BodyDef;
         BodyDef.position = b2Vec2(1.0f, 1.f);
         BodyDef.type = b2_dynamicBody;
         auto* body = world->create_body(BodyDef);
-        body->SetUserData(&robo_id);
+        body->SetUserData(&circle_id);
 
         b2CircleShape Shape;
         Shape.m_p.Set(1.0f, 1.0f);
@@ -72,9 +78,9 @@ namespace rh {
 
         auto shape = new sf::CircleShape(1.0f);
         shape->setFillColor(sf::Color::Red);
-        em->add_component<rh::components::Renderable>(robo_id, shape);
-        em->add_component<rh::components::Transformable>(robo_id, shape);
-        em->add_component<rh::components::Physics>(robo_id);
+        em->add_component<rh::components::Renderable>(circle_id, shape);
+        em->add_component<rh::components::Transformable>(circle_id, shape);
+        em->add_component<rh::components::Physics>(circle_id);
         //
 
         // Create the ground
@@ -125,6 +131,8 @@ namespace rh {
                 }
 
             }
+
+            robo->update(clock.getElapsedTime());
 
             window_->clear(sf::Color::White);
 
