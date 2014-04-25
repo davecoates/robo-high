@@ -47,14 +47,13 @@ namespace rh {
         auto em = EntityManager::get_instance();
         em->add_component<rh::components::Renderable>(entity_id_, this);
         em->add_component<rh::components::Transformable>(entity_id_, this);
-        em->add_component<rh::components::Physics>(entity_id_);
 
-        auto world = World::get_instance();
+        //auto world = World::get_instance();
         b2BodyDef roboBodyDef;
         roboBodyDef.position = b2Vec2(4.0f, 1.f);
         roboBodyDef.type = b2_dynamicBody;
-        body_ = world->create_body(roboBodyDef);
-        body_->SetUserData(&entity_id_);
+        //body_ = world->create_body(roboBodyDef);
+        //body_->SetUserData(&entity_id_);
 
         b2CircleShape tst_shape;
         tst_shape.m_p.Set(0.0f, 0.0f);
@@ -64,7 +63,7 @@ namespace rh {
         robo_fixtur.friction = 0.7f;
         robo_fixtur.shape = &tst_shape;
         robo_fixtur.restitution = size.x;
-        body_->CreateFixture(&robo_fixtur);
+        //body_->CreateFixture(&robo_fixtur);
 
         b2PolygonShape body_shape;
         float offset_x = 0.0f, offset_y = -1.f;
@@ -79,8 +78,10 @@ namespace rh {
         b2FixtureDef body_shape_fixture;
         body_shape_fixture.density = 0.f;
         body_shape_fixture.shape = &body_shape;
-        body_->CreateFixture(&body_shape_fixture);
+        //body_->CreateFixture(&body_shape_fixture);
 
+        auto fixtures = {robo_fixtur, body_shape_fixture};
+        em->add_component<rh::components::Physics>(entity_id_, roboBodyDef, fixtures);
     }
 
     void Robo::update(const sf::Time &t) {

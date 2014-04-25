@@ -8,8 +8,10 @@
 #include "components/transformable.hpp"
 #include "components/physics.hpp"
 #include "robo.hpp"
-#include "world.hpp"
 #include "entitymanager.hpp"
+
+#include "systems/render.hpp"
+#include "systems/physics.hpp"
 
 using namespace std;
 
@@ -48,22 +50,21 @@ namespace rh {
         window_->setView(view);
 
         auto em = EntityManager::get_instance();
+        auto physics_system = em->create_system<PhysicsSystem>();
+        em->create_system<RenderSystem>();
         std::cout << em->generate_entity() << "#\n";
         std::cout << em->generate_entity() << "#\n";
 
-        auto world = World::get_instance();
 
         auto robo_id = em->generate_entity();
         auto robo = new Robo(robo_id);
-
-
 
         auto circle_id = em->generate_entity();
         b2BodyDef BodyDef;
         BodyDef.position = b2Vec2(1.0f, 1.f);
         BodyDef.type = b2_dynamicBody;
-        auto* body = world->create_body(BodyDef);
-        body->SetUserData(&circle_id);
+        //auto* body = physics_system->create_body(BodyDef);
+        //body->SetUserData(&circle_id);
 
         b2CircleShape Shape;
         Shape.m_p.Set(1.0f, 1.0f);
@@ -73,14 +74,14 @@ namespace rh {
         FixtureDef.friction = 0.7f;
         FixtureDef.shape = &Shape;
         FixtureDef.restitution = 0.5f;
-        body->CreateFixture(&FixtureDef);
+        //body->CreateFixture(&FixtureDef);
 
 
         auto shape = new sf::CircleShape(1.0f);
         shape->setFillColor(sf::Color::Red);
         em->add_component<rh::components::Renderable>(circle_id, shape);
         em->add_component<rh::components::Transformable>(circle_id, shape);
-        em->add_component<rh::components::Physics>(circle_id);
+        em->add_component<rh::components::Physics>(circle_id, BodyDef, FixtureDef);
         //
 
         // Create the ground
@@ -91,27 +92,30 @@ namespace rh {
         ground_shape->setFillColor(sf::Color::Green);
         em->add_component<rh::components::Transformable>(ground_id, ground_shape);
         em->add_component<rh::components::Renderable>(ground_id, ground_shape);
-        em->add_component<rh::components::Physics>(ground_id);
 
         b2BodyDef body_def;
         body_def.position = b2Vec2(0.f, 10.f);
         body_def.type = b2_staticBody;
         body_def.angle = b2_pi / 180 * 10;
-        auto* ground = world->create_body(body_def);
-        ground->SetUserData(&ground_id);
+        //auto* ground = physics_system->create_body(body_def);
+        //ground->SetUserData(&ground_id);
 
         b2PolygonShape ground_shape2;
         ground_shape2.SetAsBox(20.f/2,2.f/2);
         b2FixtureDef ground_fixture;
         ground_fixture.density = 0.f;
         ground_fixture.shape = &ground_shape2;
-        ground->CreateFixture(&ground_fixture);
+        //ground->CreateFixture(&ground_fixture);
+
+        em->add_component<rh::components::Physics>(ground_id, body_def, ground_fixture);
 
         Box2dDebugDraw debug(window_);
-        world->set_debug_draw(debug);
+        physics_system->set_debug_draw(debug);
 
         //
         sf::Clock clock;
+
+        auto render_system = std::unique_ptr<RenderSystem>(new RenderSystem());
 
         while (window_->isOpen())
         {
@@ -136,20 +140,9 @@ namespace rh {
 
             window_->clear(sf::Color::White);
 
-            world->step();
-
-            for (auto entity_id : em->get_entities()) {
-                rh::components::Transformable *p1 = nullptr;
-                rh::components::Renderable *p3 = nullptr;
-
-                em->get_components<rh::components::Transformable, rh::components::Renderable>(entity_id, p1, p3);
-                if (p3) {
-                    window_->draw(*p3->drawable);
-                }
-            }
-
-            std::cout << '\n';
-
+            //physics_system->process(window_);
+            //render_system->process(window_);
+            em->process(window_);
             window_->display();
         }
 

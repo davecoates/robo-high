@@ -3,10 +3,11 @@
 #include <vector>
 #include <bitset>
 #include <atomic>
+#include <iostream>
 
-#include "entity.hpp"
 #include "component.hpp"
 #include "constants.hpp"
+#include "system.hpp"
 
 namespace rh {
 
@@ -14,11 +15,11 @@ namespace rh {
 
     class EntityManager {
 
-        typedef std::vector<std::shared_ptr<Entity>> EntityVector;
         typedef std::bitset<rh::MAX_COMPONENTS> ComponentMask;
 
         private:
-            EntityVector entities_;
+            std::vector<std::unique_ptr<System>> systems_;
+
             static  std::unique_ptr<EntityManager> instance_;
             std::vector<ComponentMask> component_masks_;
             std::vector<std::vector<std::shared_ptr<BaseComponent>>> components_;
@@ -66,16 +67,6 @@ namespace rh {
 
         public:
 
-            // Do we need entity classes?
-            template<typename T>
-            T* create_entity() {
-                auto ptr = std::shared_ptr<T>(new T());
-                entities_.push_back(ptr);
-                return ptr.get();
-            }
-
-            // How about...
-            //
             EntityID generate_entity() {
                 auto id = next_entity_id_.fetch_add(1);
                 if (component_masks_.size() <= id) {
@@ -118,6 +109,13 @@ namespace rh {
                 components_[group_id][entity_id] = ptr;
 
                 component_masks_[entity_id] |= 1 << group_id;
+
+                for (auto& system : systems_) {
+                    std::cout << "Init!!";
+                    system->init_component(entity_id, ptr.get());
+                }
+
+
                 return ptr.get();
             }
 
@@ -165,6 +163,21 @@ namespace rh {
                 return ids; 
             }
 
+            ///////////////////////////////////////////////////////////////////
+            template <typename SystemType, typename ... Args>
+            SystemType* create_system(Args && ... args) {
+                // TODO: Remove return value (i think). Should be doing things
+                // through entities etc
+                auto ptr = new SystemType(std::forward<Args>(args) ...);
+                systems_.push_back(std::unique_ptr<SystemType>(ptr));
+                return ptr;
+            }
 
+            ///////////////////////////////////////////////////////////////////
+            void process(sf::RenderWindow *window) {
+                for (auto& system : systems_) {
+                    system->process(window);
+                }
+            }
     };
 }
