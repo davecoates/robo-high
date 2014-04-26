@@ -42,12 +42,13 @@ namespace rh {
         auto c = dynamic_cast<components::Physics*>(component);
         if (c) {
             c->entity_id = entity_id;
-            auto* body = world_->CreateBody(&c->body_def);
-            body->SetUserData(&c->entity_id);
+            c->body = world_->CreateBody(&c->body_def);
+            c->body->SetUserData(&c->entity_id);
 
             for (auto& fixture : c->fixtures) {
-                body->CreateFixture(&fixture);
+                c->body->CreateFixture(&fixture);
             }
+
         }
     }
 

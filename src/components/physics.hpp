@@ -18,6 +18,7 @@ namespace rh {
                 fixtures.insert(fixtures.end(), f.begin(), f.end());
             }
 
+            b2Body* body;
             b2BodyDef body_def;
             std::vector<b2FixtureDef> fixtures;
 

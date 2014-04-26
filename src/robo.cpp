@@ -48,6 +48,7 @@ namespace rh {
 
         b2BodyDef roboBodyDef;
         roboBodyDef.position = b2Vec2(4.0f, 1.f);
+        //roboBodyDef.angle = b2_pi / 180 * 10;
         roboBodyDef.type = b2_dynamicBody;
         //body_ = world->create_body(roboBodyDef);
         //body_->SetUserData(&entity_id_);
@@ -59,7 +60,7 @@ namespace rh {
         robo_fixtur.density = 1.f;
         robo_fixtur.friction = 0.7f;
         robo_fixtur.shape = &tst_shape;
-        robo_fixtur.restitution = size.x;
+        robo_fixtur.restitution = 0.5f;
         //body_->CreateFixture(&robo_fixtur);
 
         b2PolygonShape body_shape;
@@ -73,7 +74,7 @@ namespace rh {
         body_shape.Set(points, 4);
         //body_shape.SetAsBox(size.x/2,size.y/2);
         b2FixtureDef body_shape_fixture;
-        body_shape_fixture.density = 0.f;
+        body_shape_fixture.density = 1.f;
         body_shape_fixture.shape = &body_shape;
         //body_->CreateFixture(&body_shape_fixture);
 
