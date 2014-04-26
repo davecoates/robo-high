@@ -1,44 +1,38 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <vector>
-#include <iostream>
-#include <typeinfo>
-#include  "component.hpp"
+#include "entitymanager.hpp"
 
 namespace rh {
 
+    typedef unsigned int EntityID;
+
     class Entity 
     {
-        typedef std::vector<std::vector<std::shared_ptr<BaseComponent>>> ComponentsVector;
-        protected:
-            ComponentsVector components_;
+        private:
+            EntityManager *em_;
+
+            EntityID id_;
 
         public:
-            template <typename T>
-            T* add_component() {
-                auto ptr = std::shared_ptr<T>(new T());
-                auto group_id = ptr->get_group_id();
-                std::cout << group_id << '\n';
-                if (components_.size() <= group_id) {
-                    components_.resize(group_id + 1);
-                }
-                components_[ptr.get()->get_group_id()].push_back(ptr);
-                return ptr.get();
+
+            Entity(EntityManager* em, EntityID id) : em_(em), id_(id) {}
+
+            EntityID id() { return id_; }
+
+            template <typename ComponentType, typename ... Args>
+            ComponentType* add_component(Args && ... args) {
+                return em_->add_component<ComponentType>(id_, std::forward<Args>(args) ...);
             }
 
-            // TODO: This was just test of concept. Need to be able to get
-            // entities that have all specified components
-            // eg. get_components<Position,Movement>()
+            /**
+             * Get a single component for an entity and return a pointer to it
+             *
+             * Returns nullptr if none specified
+             */
             template <typename T>
-            const std::vector<std::shared_ptr<T>> get_components() {
-                auto components = std::vector<std::shared_ptr<T>>();
-                auto group_id = Component<T>::get_group_id();
-                for (auto it : components_[group_id]) {
-                    std::shared_ptr<T> i(std::dynamic_pointer_cast<T>(it));
-                    components.push_back(i);
-                }
-                return components;
+            T* get_component() {
+                return em_->get_component<T>(id_);
             }
 
 

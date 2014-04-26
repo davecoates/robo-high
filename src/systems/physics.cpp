@@ -1,25 +1,24 @@
 #include "physics.hpp"
-#include "../entitymanager.hpp"
-#include <iostream>
 
 namespace rh {
 
-    PhysicsSystem::PhysicsSystem() : world_(b2Vec2(0.f, 9.8f)) { }
 
-    b2Body* PhysicsSystem::create_body(const b2BodyDef &body_def) {
-        return world_.CreateBody(&body_def);
+    void PhysicsSystem::init() {
+        world_ = std::unique_ptr<b2World>(new b2World(b2Vec2(0.f, 9.8f)));
     }
 
-    void PhysicsSystem::process(sf::RenderWindow *) {
-        world_.Step(1/60.f, 8, 3);
+    b2Body* PhysicsSystem::create_body(const b2BodyDef &body_def) {
+        return world_->CreateBody(&body_def);
+    }
 
-        auto em = EntityManager::get_instance();
+    void PhysicsSystem::process(sf::RenderWindow *, const EntityVector&) {
+        world_->Step(1/60.f, 8, 3);
 
-        for (b2Body* it = world_.GetBodyList(); it; it = it->GetNext()) {
+        for (b2Body* it = world_->GetBodyList(); it; it = it->GetNext()) {
             auto entity = (rh::EntityID*)it->GetUserData();
             rh::components::Physics* _ = nullptr;
             rh::components::Transformable* position = nullptr;
-            auto has_all = em->get_components<rh::components::Physics, rh::components::Transformable>(*entity, _, position);
+            auto has_all = em_->get_components<rh::components::Physics, rh::components::Transformable>(*entity, _, position);
             if (has_all) {
                 auto new_pos = it->GetPosition();
                 if (position->transformable) {
@@ -29,11 +28,11 @@ namespace rh {
             }
         }
 
-        world_.DrawDebugData();
+        world_->DrawDebugData();
     }
 
     void PhysicsSystem::set_debug_draw(b2Draw &d) {
-        world_.SetDebugDraw(&d);
+        world_->SetDebugDraw(&d);
         d.SetFlags(b2Draw::e_shapeBit | b2Draw::e_centerOfMassBit);
     }
 
@@ -43,15 +42,12 @@ namespace rh {
         auto c = dynamic_cast<components::Physics*>(component);
         if (c) {
             c->entity_id = entity_id;
-            auto* body = world_.CreateBody(&c->body_def);
+            auto* body = world_->CreateBody(&c->body_def);
             body->SetUserData(&c->entity_id);
 
-            std::cout << "Adding fixtures";
             for (auto& fixture : c->fixtures) {
-                std::cout << ".";
                 body->CreateFixture(&fixture);
             }
-            std::cout << std::endl;
         }
     }
 

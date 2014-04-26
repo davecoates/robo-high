@@ -10,12 +10,14 @@ namespace rh {
     class PhysicsSystem : public System {
 
         private:
-            b2World world_;
+            std::unique_ptr<b2World> world_;
 
         public:
-                            PhysicsSystem();
+            using System::System;
+
+            void            init();
             b2Body*         create_body(const b2BodyDef &body_def);
-            void            process(sf::RenderWindow *window);
+            void            process(sf::RenderWindow *window, const EntityVector&);
 
             void            set_debug_draw(b2Draw &d);
 

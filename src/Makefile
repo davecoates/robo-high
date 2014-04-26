@@ -1,4 +1,4 @@
-SRCS = main.cpp robo.cpp app.cpp entitymanager.cpp component.cpp world.cpp \
+SRCS = main.cpp robo.cpp app.cpp entitymanager.cpp component.cpp entity.cpp\
 	   box2d_debug.cpp \
 	   systems/render.cpp systems/physics.cpp
 OBJS = $(SRCS:%.cpp=../obj/%.o)

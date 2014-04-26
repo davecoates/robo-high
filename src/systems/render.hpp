@@ -7,7 +7,8 @@ namespace rh {
     class RenderSystem : public System {
 
         public:
-            void process(sf::RenderWindow *window);
+            using System::System;
+            void process(sf::RenderWindow *window, const EntityVector&);
     };
 
 }

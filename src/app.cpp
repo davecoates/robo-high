@@ -17,16 +17,6 @@ using namespace std;
 
 namespace rh {
 
-    std::unique_ptr<Application> Application::instance_;
-
-    ///////////////////////////////////////////////////////////////////////////
-    Application *Application::get_instance() {
-        if (!instance_) {
-            instance_.reset(new Application());
-        }
-        return instance_.get();
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     void Application::init(const string title, uint width, uint height, uint depth, bool fullscreen) 
     {
@@ -37,7 +27,8 @@ namespace rh {
             style = sf::Style::Fullscreen;
         }
         sf::VideoMode vm(width, height, depth);
-        window_ = new sf::RenderWindow(vm, title, style, settings);
+        window_ = std::unique_ptr<sf::RenderWindow>(
+                new sf::RenderWindow(vm, title, style, settings));
         window_->setFramerateLimit(60);
     }
 
@@ -49,17 +40,14 @@ namespace rh {
         view.reset(viewRect);
         window_->setView(view);
 
-        auto em = EntityManager::get_instance();
+        auto em = std::unique_ptr<EntityManager>(new EntityManager());
         auto physics_system = em->create_system<PhysicsSystem>();
         em->create_system<RenderSystem>();
-        std::cout << em->generate_entity() << "#\n";
-        std::cout << em->generate_entity() << "#\n";
 
+        auto robo = em->create_entity<Robo>();
 
-        auto robo_id = em->generate_entity();
-        auto robo = new Robo(robo_id);
-
-        auto circle_id = em->generate_entity();
+        auto circle = em->create_entity();
+        auto circle_id = circle.id();
         b2BodyDef BodyDef;
         BodyDef.position = b2Vec2(1.0f, 1.f);
         BodyDef.type = b2_dynamicBody;
@@ -79,14 +67,15 @@ namespace rh {
 
         auto shape = new sf::CircleShape(1.0f);
         shape->setFillColor(sf::Color::Red);
-        em->add_component<rh::components::Renderable>(circle_id, shape);
+        circle.add_component<rh::components::Renderable>(shape);
+        //em->add_component<rh::components::Renderable>(circle_id, shape);
         em->add_component<rh::components::Transformable>(circle_id, shape);
         em->add_component<rh::components::Physics>(circle_id, BodyDef, FixtureDef);
         //
 
         // Create the ground
         //
-        auto ground_id = em->generate_entity();
+        auto ground_id = em->generate_entity_id();
         auto ground_shape = new sf::RectangleShape(sf::Vector2f(20.f, 2.f));
         ground_shape->setOrigin(10, 1.f);
         ground_shape->setFillColor(sf::Color::Green);
@@ -109,13 +98,11 @@ namespace rh {
 
         em->add_component<rh::components::Physics>(ground_id, body_def, ground_fixture);
 
-        Box2dDebugDraw debug(window_);
+        Box2dDebugDraw debug(window_.get());
         physics_system->set_debug_draw(debug);
 
         //
         sf::Clock clock;
-
-        auto render_system = std::unique_ptr<RenderSystem>(new RenderSystem());
 
         while (window_->isOpen())
         {
@@ -142,7 +129,7 @@ namespace rh {
 
             //physics_system->process(window_);
             //render_system->process(window_);
-            em->process(window_);
+            em->process(window_.get());
             window_->display();
         }
 

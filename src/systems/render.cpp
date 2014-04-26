@@ -1,16 +1,21 @@
 #include "render.hpp"
 #include "../components.hpp"
 #include "../entitymanager.hpp"
+#include <iostream>
 
 namespace rh {
 
-    void RenderSystem::process(sf::RenderWindow *window) {
-        auto em = EntityManager::get_instance();
-        for (auto entity_id : em->get_entities()) {
+    void RenderSystem::process(sf::RenderWindow *window, const EntityVector& entities) {
+        for (auto entity : entities) {
 
-            auto renderable = em->get_component<rh::components::Renderable>(entity_id);
+            auto renderable = entity.get_component<rh::components::Renderable>();
             if (renderable) {
-                window->draw(*renderable->drawable);
+                if (renderable->drawable) {
+                    window->draw(*renderable->drawable);
+                } else {
+                    // TODO: Logger
+                    std::cout << "WARNING: No drawable defined\n";
+                }
             }
         }
     }

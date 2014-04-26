@@ -5,13 +5,20 @@
 #include <atomic>
 #include <iostream>
 
+#include <SFML/Graphics.hpp>
+
 #include "component.hpp"
 #include "constants.hpp"
-#include "system.hpp"
 
 namespace rh {
 
     typedef unsigned int EntityID;
+
+    class Entity;
+
+    class System;
+
+    typedef std::vector<Entity> EntityVector; 
 
     class EntityManager {
 
@@ -20,7 +27,6 @@ namespace rh {
         private:
             std::vector<std::unique_ptr<System>> systems_;
 
-            static  std::unique_ptr<EntityManager> instance_;
             std::vector<ComponentMask> component_masks_;
             std::vector<std::vector<std::shared_ptr<BaseComponent>>> components_;
 
@@ -67,7 +73,8 @@ namespace rh {
 
         public:
 
-            EntityID generate_entity() {
+
+            EntityID generate_entity_id() {
                 auto id = next_entity_id_.fetch_add(1);
                 if (component_masks_.size() <= id) {
                     component_masks_.resize(id+1);
@@ -75,6 +82,20 @@ namespace rh {
                 component_masks_[id] = 0;
                 return id;
             }
+
+
+            // Create a new Entity. This just holds an Entity ID and provides
+            // some helper functions. When the object is destroyed the Entity
+            // will still exist.
+            Entity create_entity();
+
+            // Create instance of an Entity using a custom Entity class. Note
+            // that this dynamically allocates storage for it.
+            template <typename EntityType>
+                std::shared_ptr<EntityType> create_entity() {
+                    return std::shared_ptr<EntityType>(
+                            new EntityType(this, generate_entity_id()));
+                }
 
 
             // TODO: Remove entity
@@ -110,11 +131,7 @@ namespace rh {
 
                 component_masks_[entity_id] |= 1 << group_id;
 
-                for (auto& system : systems_) {
-                    std::cout << "Init!!";
-                    system->init_component(entity_id, ptr.get());
-                }
-
+                init_component(entity_id, ptr.get());
 
                 return ptr.get();
             }
@@ -153,31 +170,29 @@ namespace rh {
             }
 
 
-            static EntityManager *get_instance();
-
-            const std::vector<EntityID> get_entities() { 
-                std::vector<EntityID> ids;
-                for (uint i=0;i<component_masks_.size();i++) {
-                    ids.push_back(i);
-                }
-                return ids; 
-            }
+            const EntityVector get_entities(); 
 
             ///////////////////////////////////////////////////////////////////
+
+            void init_component(const unsigned int&, BaseComponent*);
+
             template <typename SystemType, typename ... Args>
             SystemType* create_system(Args && ... args) {
                 // TODO: Remove return value (i think). Should be doing things
                 // through entities etc
-                auto ptr = new SystemType(std::forward<Args>(args) ...);
+                auto ptr = new SystemType(this);
+                ptr->init(std::forward<Args>(args) ...);
                 systems_.push_back(std::unique_ptr<SystemType>(ptr));
                 return ptr;
             }
 
             ///////////////////////////////////////////////////////////////////
-            void process(sf::RenderWindow *window) {
-                for (auto& system : systems_) {
-                    system->process(window);
-                }
-            }
+            void process(sf::RenderWindow *window);     
+
     };
 }
+
+// This is because we have forward declared Entity above. If we don't do this
+// any class that include EntityManager would also need to include Entity
+// otherwise the compiler will give errors 
+#include "entity.hpp"

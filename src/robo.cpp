@@ -1,7 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "robo.hpp"
 #include "entity.hpp"
-#include "world.hpp"
 #include "components/transformable.hpp"
 #include "components/renderable.hpp"
 #include "components/physics.hpp"
@@ -19,7 +18,7 @@ namespace rh {
         target.draw(circle, states);
     }
 
-    Robo::Robo(EntityID entity_id) : entity_id_(entity_id) {
+    Robo::Robo(EntityManager* em, EntityID entity_id) : Entity(em, entity_id) {
         sf::Vector2f size(1.5f, 1.5f);
         //shape_.setFillColor(sf::Color::Green);
         shape_.setSize(size);
@@ -44,11 +43,9 @@ namespace rh {
         //circle.setOutlineThickness(1.f);
         //circle.setOutlineColor(sf::Color::Magenta);
 
-        auto em = EntityManager::get_instance();
-        em->add_component<rh::components::Renderable>(entity_id_, this);
-        em->add_component<rh::components::Transformable>(entity_id_, this);
+        add_component<rh::components::Renderable>(this);
+        add_component<rh::components::Transformable>(this);
 
-        //auto world = World::get_instance();
         b2BodyDef roboBodyDef;
         roboBodyDef.position = b2Vec2(4.0f, 1.f);
         roboBodyDef.type = b2_dynamicBody;
@@ -81,7 +78,7 @@ namespace rh {
         //body_->CreateFixture(&body_shape_fixture);
 
         auto fixtures = {robo_fixtur, body_shape_fixture};
-        em->add_component<rh::components::Physics>(entity_id_, roboBodyDef, fixtures);
+        add_component<rh::components::Physics>(roboBodyDef, fixtures);
     }
 
     void Robo::update(const sf::Time &t) {

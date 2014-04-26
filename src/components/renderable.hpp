@@ -10,7 +10,7 @@ namespace rh {
 
             Renderable(sf::Drawable *drawable = nullptr) : drawable(drawable) {}
 
-            sf::Drawable *drawable;
+            sf::Drawable *drawable = nullptr;
 
         };
     }
