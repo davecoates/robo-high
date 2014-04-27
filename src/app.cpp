@@ -12,6 +12,8 @@
 
 #include "systems/render.hpp"
 #include "systems/physics.hpp"
+#include "systems/keyboardinput.hpp"
+#include "systems/movement.hpp"
 
 using namespace std;
 
@@ -41,6 +43,8 @@ namespace rh {
         window_->setView(view);
 
         auto em = std::unique_ptr<EntityManager>(new EntityManager());
+        em->create_system<MovementSystem>();
+        auto keyboard_system = em->create_system<KeyboardInputSystem>();
         auto physics_system = em->create_system<PhysicsSystem>();
         em->create_system<RenderSystem>();
 
@@ -76,21 +80,22 @@ namespace rh {
         // Create the ground
         //
         auto ground_id = em->generate_entity_id();
-        auto ground_shape = new sf::RectangleShape(sf::Vector2f(20.f, 2.f));
-        ground_shape->setOrigin(10, 1.f);
+        auto ground_w = 100.f;
+        auto ground_shape = new sf::RectangleShape(sf::Vector2f(ground_w, 2.f));
+        ground_shape->setOrigin(ground_w/2.f, 1.f);
         ground_shape->setFillColor(sf::Color::Green);
         em->add_component<rh::components::Transformable>(ground_id, ground_shape);
         em->add_component<rh::components::Renderable>(ground_id, ground_shape);
 
         b2BodyDef body_def;
-        body_def.position = b2Vec2(0.f, 10.f);
+        body_def.position = b2Vec2(ground_w/2.f, 10.f);
         body_def.type = b2_staticBody;
-        body_def.angle = b2_pi / 180 * 10;
+        //body_def.angle = b2_pi / 180 * 10;
         //auto* ground = physics_system->create_body(body_def);
         //ground->SetUserData(&ground_id);
 
         b2PolygonShape ground_shape2;
-        ground_shape2.SetAsBox(20.f/2,2.f/2);
+        ground_shape2.SetAsBox(ground_w/2,2.f/2);
         b2FixtureDef ground_fixture;
         ground_fixture.density = 0.f;
         ground_fixture.shape = &ground_shape2;
@@ -112,13 +117,7 @@ namespace rh {
                 if (event.type == sf::Event::Closed)
                     window_->close();
                 if (event.type == sf::Event::KeyPressed) {
-                    switch (event.key.code) {
-                        case  sf::Keyboard::Escape:
-                            window_->close();
-                            break;
-                        default:
-                            break;
-                    }
+                    keyboard_system->add_event(event.key); 
                 }
 
             }

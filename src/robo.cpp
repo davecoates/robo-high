@@ -4,6 +4,7 @@
 #include "components/transformable.hpp"
 #include "components/renderable.hpp"
 #include "components/physics.hpp"
+#include "components/movement.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -46,6 +47,8 @@ namespace rh {
         add_component<rh::components::Renderable>(this);
         add_component<rh::components::Transformable>(this);
 
+        add_component<rh::components::Movement>();
+
         b2BodyDef roboBodyDef;
         roboBodyDef.position = b2Vec2(4.0f, 1.f);
         //roboBodyDef.angle = b2_pi / 180 * 10;
@@ -79,7 +82,8 @@ namespace rh {
         //body_->CreateFixture(&body_shape_fixture);
 
         auto fixtures = {robo_fixtur, body_shape_fixture};
-        add_component<rh::components::Physics>(roboBodyDef, fixtures);
+        auto physics = add_component<rh::components::Physics>(roboBodyDef, fixtures);
+        physics->body->SetFixedRotation(true);
     }
 
     void Robo::update(const sf::Time &t) {

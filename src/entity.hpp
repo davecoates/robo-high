@@ -25,6 +25,11 @@ namespace rh {
                 return em_->add_component<ComponentType>(id_, std::forward<Args>(args) ...);
             }
 
+            template <typename T, typename ... Ts>
+            bool get_components(T* &first, Ts*&... rest) {
+                return em_->get_components<T, Ts ...>(id_,first, rest ...);
+            }
+
             /**
              * Get a single component for an entity and return a pointer to it
              *
