@@ -5,6 +5,7 @@
 #include "components/renderable.hpp"
 #include "components/physics.hpp"
 #include "components/movement.hpp"
+#include "components/contactsensor.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -47,7 +48,8 @@ namespace rh {
         add_component<rh::components::Renderable>(this);
         add_component<rh::components::Transformable>(this);
 
-        add_component<rh::components::Movement>();
+        add_component<rh::components::Movement>(5.0f, 5.0f);
+        add_component<rh::components::ContactSensor>();
 
         b2BodyDef roboBodyDef;
         roboBodyDef.position = b2Vec2(4.0f, 1.f);
@@ -63,7 +65,7 @@ namespace rh {
         robo_fixtur.density = 1.f;
         robo_fixtur.friction = 0.7f;
         robo_fixtur.shape = &tst_shape;
-        robo_fixtur.restitution = 0.5f;
+        robo_fixtur.restitution = 0.1f;
         //body_->CreateFixture(&robo_fixtur);
 
         b2PolygonShape body_shape;
@@ -81,17 +83,28 @@ namespace rh {
         body_shape_fixture.shape = &body_shape;
         //body_->CreateFixture(&body_shape_fixture);
 
-        auto fixtures = {robo_fixtur, body_shape_fixture};
+        //shape definition for main fixture
+        b2PolygonShape polygonShape;
+        polygonShape.SetAsBox(0.1, 0.5, b2Vec2(0, 0.6), 0); 
+
+        //fixture definition
+        b2FixtureDef foot_fixture;
+        foot_fixture.shape = &polygonShape;
+        foot_fixture.density = 1;
+        foot_fixture.isSensor = true;
+        foot_fixture.userData = (void*)&id_;
+
+        auto fixtures = {robo_fixtur, body_shape_fixture, foot_fixture};
         auto physics = add_component<rh::components::Physics>(roboBodyDef, fixtures);
         physics->body->SetFixedRotation(true);
     }
 
     void Robo::update(const sf::Time &t) {
         //shader.setParameter("blur_radius", 0.03f);
-        shader.setParameter("sigma", 5.5f);
+        shader.setParameter("sigma", 3.5f);
         shader.setParameter("glowMultiplier", 1.5f);
         shader.setParameter("width", 500.f);
-        //circle.setRotation(t.asSeconds()*1000);
+        circle.setRotation(t.asSeconds()*1000);
     }
 
 }

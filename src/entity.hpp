@@ -12,6 +12,8 @@ namespace rh {
         private:
             EntityManager *em_;
 
+        protected:
+
             EntityID id_;
 
         public:

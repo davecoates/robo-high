@@ -5,6 +5,8 @@ namespace rh {
 
     void PhysicsSystem::init() {
         world_ = std::unique_ptr<b2World>(new b2World(b2Vec2(0.f, 9.8f)));
+        contact_listener_ = std::unique_ptr<ContactListener>(new ContactListener(em_));
+        world_->SetContactListener(contact_listener_.get());
     }
 
     b2Body* PhysicsSystem::create_body(const b2BodyDef &body_def) {

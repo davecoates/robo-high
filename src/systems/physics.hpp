@@ -5,12 +5,15 @@
 #include "../system.hpp"
 #include "../components.hpp"
 
+#include "../contactlistener.hpp"
+
 namespace rh {
 
     class PhysicsSystem : public System {
 
         private:
             std::unique_ptr<b2World> world_;
+            std::unique_ptr<ContactListener> contact_listener_;
 
         public:
             using System::System;

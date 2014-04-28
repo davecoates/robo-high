@@ -50,31 +50,6 @@ namespace rh {
 
         auto robo = em->create_entity<Robo>();
 
-        auto circle = em->create_entity();
-        auto circle_id = circle.id();
-        b2BodyDef BodyDef;
-        BodyDef.position = b2Vec2(1.0f, 1.f);
-        BodyDef.type = b2_dynamicBody;
-        //auto* body = physics_system->create_body(BodyDef);
-        //body->SetUserData(&circle_id);
-
-        b2CircleShape Shape;
-        Shape.m_p.Set(1.0f, 1.0f);
-        Shape.m_radius = 1.0f;
-        b2FixtureDef FixtureDef;
-        FixtureDef.density = 1.f;
-        FixtureDef.friction = 0.7f;
-        FixtureDef.shape = &Shape;
-        FixtureDef.restitution = 0.5f;
-        //body->CreateFixture(&FixtureDef);
-
-
-        auto shape = new sf::CircleShape(1.0f);
-        shape->setFillColor(sf::Color::Red);
-        circle.add_component<rh::components::Renderable>(shape);
-        //em->add_component<rh::components::Renderable>(circle_id, shape);
-        em->add_component<rh::components::Transformable>(circle_id, shape);
-        em->add_component<rh::components::Physics>(circle_id, BodyDef, FixtureDef);
         //
 
         // Create the ground
