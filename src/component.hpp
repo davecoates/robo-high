@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bitset>
+#include <vector>
 #include "constants.hpp"
 
 namespace rh {
@@ -8,6 +9,7 @@ namespace rh {
     typedef unsigned int ComponentGroupId;
 
     typedef std::bitset<rh::MAX_COMPONENTS> ComponentMask;
+    typedef std::vector<ComponentGroupId> ComponentGroupIds;
 
 
     /**

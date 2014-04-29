@@ -1,5 +1,5 @@
-#include "entitymanager.hpp"
 #include "entity.hpp"
+#include "entitymanager.hpp"
 #include "system.hpp"
 
 namespace rh {

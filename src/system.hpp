@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "component.hpp"
-#include "node.hpp"
+#include "basenode.hpp"
 
 namespace rh {
 
@@ -22,7 +22,7 @@ namespace rh {
             virtual void init() {}
 
             virtual void add_node(BaseNode*) {
-                std::cout << "System::add_node" << std::endl;
+                // TODO:
             }
     };
 

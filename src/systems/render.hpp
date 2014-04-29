@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../system.hpp"
+#include "../rendernode.hpp"
 #include <set>
 
 namespace rh {
@@ -20,6 +21,7 @@ namespace rh {
                     render_nodes.insert(n);
                 }
             }
+
     };
 
 }

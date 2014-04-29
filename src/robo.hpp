@@ -2,8 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <Box2d/Box2D.h>
-#include "entitymanager.hpp"
 #include "entity.hpp"
+#include "entitymanager.hpp"
 
 namespace rh {
 

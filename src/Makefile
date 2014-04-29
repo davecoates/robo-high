@@ -1,7 +1,8 @@
 SRCS = main.cpp robo.cpp app.cpp entitymanager.cpp component.cpp entity.cpp\
 	   box2d_debug.cpp \
 	   systems/render.cpp systems/physics.cpp systems/keyboardinput.cpp \
-	   systems/movement.cpp contactlistener.cpp node.cpp
+	   systems/movement.cpp contactlistener.cpp node.cpp rendernode.cpp \
+	   physicsnode.cpp movementnode.cpp
 OBJS = $(SRCS:%.cpp=../obj/%.o)
 LDFLAGS =-lsfml-graphics -lsfml-window -lsfml-system -lBox2d
 CXXFLAGS = -c -Wall -std=c++11

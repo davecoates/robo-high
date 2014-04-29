@@ -10,7 +10,7 @@
 
 #include "component.hpp"
 #include "constants.hpp"
-#include "node.hpp"
+#include "basenode.hpp"
 #include "system.hpp"
 
 namespace rh {
@@ -18,8 +18,6 @@ namespace rh {
     typedef unsigned int EntityID;
 
     class Entity;
-
-    class System;
 
     typedef std::vector<Entity> EntityVector; 
 
@@ -75,7 +73,7 @@ namespace rh {
                     create_component_mask<T2, Ts...>(entity_id, second, rest...);
             }
 
-            typedef std::function<BaseNode*(SystemsVector&)> NodeFactoryFunction;
+            typedef std::function<BaseNode*(Entity, SystemsVector&)> NodeFactoryFunction;
             typedef std::tuple<ComponentMask, NodeFactoryFunction> NodeRegistration;
 
             static std::vector<NodeRegistration> node_factories;
@@ -85,20 +83,7 @@ namespace rh {
 
 
             template <typename T1>
-            static ComponentMask register_node() {
-                auto mask = T1::get_mask();
-                std::cout << "Register node " <<  mask << "\n";
-                NodeFactoryFunction func([mask] (SystemsVector &systems) {
-                        auto a = new T1();
-                        for (auto& system : systems) {
-                            system->add_node(a);
-                        }
-                        return a;
-                        });
-                NodeRegistration reg(mask, func);
-                node_factories.push_back(reg);
-                return mask;
-            }
+            static ComponentMask register_node(); 
 
 
 
@@ -143,43 +128,7 @@ namespace rh {
              * @param Args... arguments to pass to component
              */
             template <typename ComponentType, typename ... Args>
-            ComponentType* add_component(const EntityID entity_id, Args && ... args) {
-                if (entity_id >= next_entity_id_) {
-                    throw std::runtime_error("Can't add component to invalid entity id");
-                }
-                auto ptr = std::shared_ptr<ComponentType>(
-                        new ComponentType(std::forward<Args>(args) ...));
-                auto group_id = ptr->get_group_id();
-                if (components_.size() <= group_id) {
-                    components_.resize(group_id + 1);
-                }
-                if (components_[group_id].size() <= entity_id) {
-                    components_[group_id].resize(entity_id+1);
-                }
-                components_[group_id][entity_id] = ptr;
-
-                component_masks_[entity_id] |= 1 << group_id;
-
-                init_component(entity_id, ptr.get());
-
-                if (nodes_.size() <= entity_id) {
-                    nodes_[entity_id].resize(entity_id+1);
-                }
-
-                for (auto factory : node_factories) {
-                    auto m = std::get<0>(factory);
-                    if (m == (m & component_masks_[entity_id])) {
-                        auto ptr = std::get<1>(factory)(systems_);
-                        nodes_[entity_id].push_back(ptr);
-                        std::cout << "Factory " << typeid(ptr).name() << " - ";
-                        std::cout << "Entity " << entity_id << "matches!" << std::endl;
-                    } else {
-                        std::cout << "No match" << std::endl;
-                    }
-                }
-
-                return ptr.get();
-            }
+            ComponentType* add_component(const EntityID entity_id, Args && ... args); 
 
             /**
              * Get a single component for an entity and return a pointer to it
@@ -241,3 +190,69 @@ namespace rh {
 // any class that include EntityManager would also need to include Entity
 // otherwise the compiler will give errors 
 #include "entity.hpp"
+
+namespace rh {
+    template <typename ComponentType, typename ... Args>
+    ComponentType* EntityManager::add_component(const EntityID entity_id, Args && ... args) {
+        if (entity_id >= next_entity_id_) {
+            throw std::runtime_error("Can't add component to invalid entity id");
+        }
+        auto ptr = std::shared_ptr<ComponentType>(
+                new ComponentType(std::forward<Args>(args) ...));
+        auto group_id = ptr->get_group_id();
+        if (components_.size() <= group_id) {
+            components_.resize(group_id + 1);
+        }
+        if (components_[group_id].size() <= entity_id) {
+            components_[group_id].resize(entity_id+1);
+        }
+        components_[group_id][entity_id] = ptr;
+
+        component_masks_[entity_id] |= 1 << group_id;
+
+        init_component(entity_id, ptr.get());
+
+        //if (nodes_.size() <= entity_id) {
+        //nodes_[entity_id].resize(entity_id+1);
+        //}
+
+        for (auto factory : node_factories) {
+            auto m = std::get<0>(factory);
+            if (m == (m & component_masks_[entity_id])) {
+                Entity entity(this, entity_id);
+                auto ptr = std::get<1>(factory)(entity, systems_);
+                auto masks = ptr->get_group_ids();
+                for (auto mask : masks) {
+                    ptr->init(this, entity_id);
+                    std::cout << "Mask: " << mask << std::endl;
+                }
+                //nodes_[entity_id].push_back(ptr);
+                std::cout << "Factory " << typeid(ptr).name() << " - ";
+                std::cout << "Entity " << entity_id << "matches!" << std::endl;
+            } else {
+                std::cout << "No match" << std::endl;
+            }
+        }
+
+        return ptr.get();
+    }
+
+
+    template <typename T1>
+    ComponentMask EntityManager::register_node() {
+        auto mask = T1::get_mask();
+        std::cout << "Register node " <<  mask << "\n";
+        NodeFactoryFunction func([mask] (Entity entity, SystemsVector &systems) {
+                // TODO: Memory leak
+                auto a = new T1(entity);
+                for (auto& system : systems) {
+                    system->add_node(a);
+                }
+                return a;
+                });
+        NodeRegistration reg(mask, func);
+        node_factories.push_back(reg);
+        return mask;
+    }
+
+}
