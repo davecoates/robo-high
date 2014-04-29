@@ -7,8 +7,17 @@
 
 namespace rh {
 
+    class BaseNode {
+
+        public:
+            virtual ~BaseNode() {}
+
+            virtual std::string get_type() = 0;
+
+    };
+
     template <typename C1,  typename ... Cs>
-    class Node {
+    class Node : public BaseNode {
 
         template <typename T>
         static ComponentMask get_mask() {
@@ -37,22 +46,23 @@ namespace rh {
 
     };
 
-    class PositionNode : public Node<components::Transformable> {
+    struct PositionNode : public Node<components::Transformable> {
 
-
-
-    };
-
-
-    class RenderNode : public Node<components::Renderable, components::Transformable> {
-
+        std::string get_type() { return "Position"; }
 
 
     };
 
-    class PhysicsNode : public Node<components::Physics, components::Transformable> {
 
+    struct RenderNode : public Node<components::Renderable, components::Transformable> {
 
+std::string get_type() { return "Render"; }
+
+    };
+
+    struct PhysicsNode : public Node<components::Physics, components::Transformable> {
+
+std::string get_type() { return "Physics"; }
 
     };
 

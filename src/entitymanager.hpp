@@ -1,13 +1,17 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
 #include <atomic>
 #include <iostream>
+#include <typeinfo>
 
 #include <SFML/Graphics.hpp>
 
 #include "component.hpp"
 #include "constants.hpp"
+#include "node.hpp"
+#include "system.hpp"
 
 namespace rh {
 
@@ -21,11 +25,15 @@ namespace rh {
 
     class EntityManager {
 
+        typedef std::vector<std::unique_ptr<System>> SystemsVector;
+
         private:
-            std::vector<std::unique_ptr<System>> systems_;
+            SystemsVector systems_;
 
             std::vector<ComponentMask> component_masks_;
             std::vector<std::vector<std::shared_ptr<BaseComponent>>> components_;
+
+            std::vector<std::vector<BaseNode*>> nodes_; 
 
             std::atomic<EntityID> next_entity_id_;
 
@@ -67,8 +75,32 @@ namespace rh {
                     create_component_mask<T2, Ts...>(entity_id, second, rest...);
             }
 
+            typedef std::function<BaseNode*(SystemsVector&)> NodeFactoryFunction;
+            typedef std::tuple<ComponentMask, NodeFactoryFunction> NodeRegistration;
+
+            static std::vector<NodeRegistration> node_factories;
 
         public:
+
+
+
+            template <typename T1>
+            static ComponentMask register_node() {
+                auto mask = T1::get_mask();
+                std::cout << "Register node " <<  mask << "\n";
+                NodeFactoryFunction func([mask] (SystemsVector &systems) {
+                        auto a = new T1();
+                        for (auto& system : systems) {
+                            system->add_node(a);
+                        }
+                        return a;
+                        });
+                NodeRegistration reg(mask, func);
+                node_factories.push_back(reg);
+                return mask;
+            }
+
+
 
 
             EntityID generate_entity_id() {
@@ -129,6 +161,22 @@ namespace rh {
                 component_masks_[entity_id] |= 1 << group_id;
 
                 init_component(entity_id, ptr.get());
+
+                if (nodes_.size() <= entity_id) {
+                    nodes_[entity_id].resize(entity_id+1);
+                }
+
+                for (auto factory : node_factories) {
+                    auto m = std::get<0>(factory);
+                    if (m == (m & component_masks_[entity_id])) {
+                        auto ptr = std::get<1>(factory)(systems_);
+                        nodes_[entity_id].push_back(ptr);
+                        std::cout << "Factory " << typeid(ptr).name() << " - ";
+                        std::cout << "Entity " << entity_id << "matches!" << std::endl;
+                    } else {
+                        std::cout << "No match" << std::endl;
+                    }
+                }
 
                 return ptr.get();
             }

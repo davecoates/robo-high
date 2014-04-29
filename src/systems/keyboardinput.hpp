@@ -17,7 +17,7 @@ namespace rh {
         public:
             using System::System;
 
-            void process(sf::RenderWindow *window, const EntityVector&);
+            void process(sf::RenderWindow *window);
 
             void add_event(const sf::Event::KeyEvent &event);
     };

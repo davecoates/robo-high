@@ -7,7 +7,7 @@
 
 namespace rh {
 
-    void KeyboardInputSystem::process(sf::RenderWindow *window, const EntityVector&) {
+    void KeyboardInputSystem::process(sf::RenderWindow *window) {
 
         if (event_count_) {
             for (unsigned int i =0; i < event_count_;i++) {

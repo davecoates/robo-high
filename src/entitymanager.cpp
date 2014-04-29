@@ -24,7 +24,7 @@ namespace rh {
     void EntityManager::process(sf::RenderWindow *window) {
         auto entities = get_entities();
         for (auto& system : systems_) {
-            system->process(window, entities);
+            system->process(window);
         }
     }
 
@@ -33,5 +33,7 @@ namespace rh {
             system->init_component(entity_id, component);
         }
     }
+
+   std::vector<EntityManager::NodeRegistration> EntityManager::node_factories = std::vector<EntityManager::NodeRegistration>();
 
 }

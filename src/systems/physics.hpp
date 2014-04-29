@@ -13,14 +13,14 @@ namespace rh {
 
         private:
             std::unique_ptr<b2World> world_;
-            std::unique_ptr<ContactListener> contact_listener_;
+            //std::unique_ptr<ContactListener> contact_listener_;
 
         public:
             using System::System;
 
             void            init();
             b2Body*         create_body(const b2BodyDef &body_def);
-            void            process(sf::RenderWindow *window, const EntityVector&);
+            void            process(sf::RenderWindow *window);
 
             void            set_debug_draw(b2Draw &d);
 
