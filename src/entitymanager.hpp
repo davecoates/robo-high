@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <bitset>
 #include <atomic>
 #include <iostream>
 
@@ -21,8 +20,6 @@ namespace rh {
     typedef std::vector<Entity> EntityVector; 
 
     class EntityManager {
-
-        typedef std::bitset<rh::MAX_COMPONENTS> ComponentMask;
 
         private:
             std::vector<std::unique_ptr<System>> systems_;

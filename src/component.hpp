@@ -1,8 +1,14 @@
 #pragma once
 
+#include <bitset>
+#include "constants.hpp"
+
 namespace rh {
 
     typedef unsigned int ComponentGroupId;
+
+    typedef std::bitset<rh::MAX_COMPONENTS> ComponentMask;
+
 
     /**
      * Base class exists to track group counter
