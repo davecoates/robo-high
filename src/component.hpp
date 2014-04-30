@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <vector>
+#include <iostream>
 #include "constants.hpp"
 
 namespace rh {
@@ -19,7 +20,7 @@ namespace rh {
     {
         public:
             BaseComponent() {};
-            virtual ~BaseComponent() {};
+            virtual ~BaseComponent() { };
         protected:
             static ComponentGroupId group_id_counter_;
     };

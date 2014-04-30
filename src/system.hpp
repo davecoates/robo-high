@@ -22,9 +22,9 @@ namespace rh {
 
             virtual void init() {}
 
-            virtual void add_node(BaseNode*) {
-                // TODO:
-            }
+            virtual void add_node(BaseNode*) {}
+
+            virtual void remove_node(BaseNode*) {}
     };
 
 }

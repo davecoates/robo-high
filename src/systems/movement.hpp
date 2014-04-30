@@ -32,6 +32,13 @@ namespace rh {
                 }
             }
 
+            void remove_node(BaseNode *node) {
+                auto n = dynamic_cast<MovementNode*>(node);
+                if (n) {
+                    nodes_.erase(n);
+                }
+            }
+
 
     };
 

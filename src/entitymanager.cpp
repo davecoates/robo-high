@@ -12,7 +12,14 @@ namespace rh {
     }
 
     EntityID EntityManager::generate_entity_id() {
-        auto id = next_entity_id_.fetch_add(1);
+        EntityID id;
+        if (free_ids_.size()) {
+            id = free_ids_.front();
+            free_ids_.pop_front();
+        } else {
+            id = next_entity_id_.fetch_add(1);
+        }
+
         if (component_masks_.size() <= id) {
             component_masks_.resize(id+1);
         }

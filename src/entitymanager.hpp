@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <atomic>
+#include <list>
 #include <iostream>
 #include <typeinfo>
 
@@ -54,7 +55,8 @@ namespace rh {
             static void register_node(); 
 
 
-            // Generate a new entity ID to use
+            // Generate a new entity ID to use. Will re-use old ID's from
+            // deleted entities if avaialable
             EntityID generate_entity_id();
 
 
@@ -76,8 +78,32 @@ namespace rh {
 
 
             // TODO: Remove entity
-            // TODO: Reuse entity id's
             
+            void remove_entity(EntityID entity_id) {
+
+                // Remove nodes first as the system may do cleanup on
+                // components (eg. physics system needs to cleanup bodies with
+                // box2d)
+                for (auto node : nodes_[entity_id]) {
+                    for (auto& system : systems_) {
+                        system->remove_node(node.get());
+                    }
+                }
+
+                for (unsigned long i = 0 ; i < component_masks_[entity_id].size();i++) {
+                    // TODO: Component removal needs to be separate as we need
+                    // to be able to do it without removing the whole entity
+                    if (component_masks_[entity_id].test(i)) {
+                        components_[i][entity_id].reset();
+                    }
+                }
+
+                nodes_[entity_id].clear(); 
+                component_masks_[entity_id] = 0;
+
+                free_ids_.push_back(entity_id);
+            }
+
 
             // Add a component to an entity, optionally passing through
             // arguments to the components
@@ -149,6 +175,8 @@ namespace rh {
 
             // Next entity to use
             std::atomic<EntityID> next_entity_id_;
+
+            std::list<EntityID> free_ids_;
 
             // TODO: Track free'd entity id's
 

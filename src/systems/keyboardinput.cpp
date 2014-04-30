@@ -7,6 +7,8 @@
 
 namespace rh {
 
+    std::vector<EntityID> entities;
+
     // Just for testing
     static void generate_shape(EntityManager* em) {
         auto entity = em->create_entity();
@@ -31,6 +33,8 @@ namespace rh {
         entity.add_component<rh::components::Renderable>(shape);
         entity.add_component<rh::components::Transformable>(shape);
         entity.add_component<rh::components::Physics>(body_def, fixture);
+
+        entities.push_back(entity.id());
     }
 
     void KeyboardInputSystem::process(sf::RenderWindow *window) {
@@ -45,6 +49,11 @@ namespace rh {
                     case sf::Keyboard::I:
                         generate_shape(em_);
                         break;
+                    case sf::Keyboard::D:
+                        if (entities.size()) {
+                            em_->remove_entity(entities.back());
+                            entities.pop_back();
+                        }
                     default:
                         break;
                 }

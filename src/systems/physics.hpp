@@ -40,6 +40,14 @@ namespace rh {
                 }
             }
 
+            void remove_node(BaseNode *node) {
+                auto n = dynamic_cast<PhysicsNode*>(node);
+                if (n) {
+                    auto it = physics_nodes_.find(n->get_entity_id());
+                    world_->DestroyBody(it->second->physics_->body);
+                    physics_nodes_.erase(it);
+                }
+            }
 
     };
 

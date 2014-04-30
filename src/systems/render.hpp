@@ -21,6 +21,13 @@ namespace rh {
                 }
             }
 
+            void remove_node(BaseNode *node) {
+                auto n = dynamic_cast<RenderNode*>(node);
+                if (n) {
+                    render_nodes.erase(n);
+                }
+            }
+
     };
 
 }
