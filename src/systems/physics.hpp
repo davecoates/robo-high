@@ -8,7 +8,7 @@
 
 #include "../contactlistener.hpp"
 
-#include "../physicsnode.hpp"
+#include "../nodes/physicsnode.hpp"
 
 namespace rh {
 
@@ -34,7 +34,6 @@ namespace rh {
             void            init_component(const unsigned int &entity_id, BaseComponent* component);
 
             void add_node(BaseNode *node) {
-                std::cout << "Type: " << node->get_type() << std::endl;
                 auto n = dynamic_cast<PhysicsNode*>(node);
                 if (n) {
                     physics_nodes_[n->get_entity_id()] = n;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <tuple>
 #include <atomic>
 #include <iostream>
 #include <typeinfo>
@@ -24,139 +23,87 @@ namespace rh {
     class EntityManager {
 
         typedef std::vector<std::unique_ptr<System>> SystemsVector;
+        typedef std::shared_ptr<BaseNode>  NodePtr;
+        typedef std::function<NodePtr(Entity, SystemsVector&)> NodeFactoryFunction;
 
-        private:
-            SystemsVector systems_;
+        struct NodeFactory {
+            NodeFactory(ComponentMask m, NodeFactoryFunction f) :
+                mask(m), create_node(f) {}
 
-            std::vector<ComponentMask> component_masks_;
-            std::vector<std::vector<std::shared_ptr<BaseComponent>>> components_;
+            // Mask that defines which components this node type cares about
+            ComponentMask mask;
 
-            std::vector<std::vector<BaseNode*>> nodes_; 
+            // We store a std::function rather than making this a template
+            // class as otherwise we couldn't create the NodeFactories vector
+            // - we'd have to have some other way to create the nodes
+            NodeFactoryFunction create_node;
+        };
 
-            std::atomic<EntityID> next_entity_id_;
-
-            /**
-             * Generate component mask AND set component_ptr to matching
-             * pointer (if any). We are mixing concerns a little bit here. What
-             * we want to do is generate a mask that represents a list of
-             * components. We use this to test against a entity to see if it
-             * has all the components. We then need a way to get all the
-             * relevant components for that entity - so we just do it as we go
-             * and assign it to a pointer.
-             *
-             * @param entity_id this is used to determine whether we set
-             * component_ptr or not.
-             * @param component_ptr pointer to a component - will be set if
-             * entity has this component
-             *
-             * @return ComponentMask
-             */
-            template <typename T>
-            ComponentMask create_component_mask(const EntityID entity_id, T* &component_ptr) {
-                auto group_id = Component<T>::get_group_id();
-                ComponentMask mask = 1 << group_id;
-                if (mask == (mask & component_masks_[entity_id])) {
-                    component_ptr = dynamic_cast<T*>(components_[group_id][entity_id].get());
-                }
-                return mask;
-            }
-
-            /**
-             * We recursively reduce until we have a single template argument
-             * which is handled above.
-             *
-             * @see create_component_mask() above
-             */
-            template <typename T1, typename T2, typename ... Ts>
-            ComponentMask create_component_mask(const EntityID entity_id, T1* &first, T2* &second, Ts*&... rest) {
-                return create_component_mask<T1>(entity_id, first) | 
-                    create_component_mask<T2, Ts...>(entity_id, second, rest...);
-            }
-
-            typedef std::function<BaseNode*(Entity, SystemsVector&)> NodeFactoryFunction;
-            typedef std::tuple<ComponentMask, NodeFactoryFunction> NodeRegistration;
-
-            static std::vector<NodeRegistration> node_factories;
+        typedef std::vector<NodeFactory> NodeFactories;
 
         public:
 
-
-
+            // This tells entity manager about a node. This allows us to create
+            // and remove nodes automatically based on the presence of
+            // combinations of components.
+            //
+            // @see Node::get_group_ids() for how a node tells us what
+            // components it cares about
+            // @see self::add_component() for where a node is created
             template <typename T1>
-            static ComponentMask register_node(); 
+            static void register_node(); 
 
 
-
-
-            EntityID generate_entity_id() {
-                auto id = next_entity_id_.fetch_add(1);
-                if (component_masks_.size() <= id) {
-                    component_masks_.resize(id+1);
-                }
-                component_masks_[id] = 0;
-                return id;
-            }
+            // Generate a new entity ID to use
+            EntityID generate_entity_id();
 
 
             // Create a new Entity. This just holds an Entity ID and provides
-            // some helper functions. When the object is destroyed the Entity
-            // will still exist.
+            // some helper functions. When the object is destroyed the
+            // underlying entity (ie. the entity ID) will still exist. Just
+            // here for convenience.
             Entity create_entity();
+
 
             // Create instance of an Entity using a custom Entity class. Note
             // that this dynamically allocates storage for it.
+            // TODO: Think about if you really want this kind of behaviour
             template <typename EntityType>
-                std::shared_ptr<EntityType> create_entity() {
-                    return std::shared_ptr<EntityType>(
-                            new EntityType(this, generate_entity_id()));
-                }
+            std::shared_ptr<EntityType> create_entity() {
+                return std::shared_ptr<EntityType>(
+                        new EntityType(this, generate_entity_id()));
+            }
 
 
             // TODO: Remove entity
             // TODO: Reuse entity id's
-            // TODO: ID's or Objects??
-            // TODO: OBject could just be simply wrapper around ID? Think about
-            // how stuff will be isntantiated. Components contain data and
-            // systems process the data. Is there a need for an object? Could
-            // Robo not be replaced by a collection of components?
+            
 
-            /**
-             * Add a component to an entity, optionally passing through
-             * arguments to the components
-             *
-             * @param entity_id 
-             * @param Args... arguments to pass to component
-             */
+            // Add a component to an entity, optionally passing through
+            // arguments to the components
+            //
+            // @param entity_id 
+            // @param Args... arguments to pass to component
             template <typename ComponentType, typename ... Args>
             ComponentType* add_component(const EntityID entity_id, Args && ... args); 
 
-            /**
-             * Get a single component for an entity and return a pointer to it
-             *
-             * Returns nullptr if none specified
-             */
+
+            // Get a single component for an entity and return a pointer to it
+            //
+            // Returns nullptr if entity does not have requested component
             template <typename T>
-            T* get_component(const EntityID entity_id) {
-                auto group_id = Component<T>::get_group_id();
+            T* get_component(const EntityID entity_id);
 
-                if (!component_masks_[entity_id].test(group_id)) {
-                    return nullptr;
-                }
 
-                return dynamic_cast<T*>(components_[group_id][entity_id].get());
-            }
-
-            /**
-             * Get all specific components for an entity
-             *
-             * Components pointers are assigned to the provided pointer ref
-             * arguments.
-             *
-             * Note that each pointer will be set if the entity has that
-             * component even if the entity doesn't have ALL components. In
-             * this way you can use the return value (bool) to detect if it has
-             * all components but still use available components if necessary.
-             */
+            // Get all specific components for an entity
+            //
+            // Components pointers are assigned to the provided pointer ref
+            // arguments.
+            //
+            // Note that each pointer will be set if the entity has that
+            // component even if the entity doesn't have ALL components. In
+            // this way you can use the return value (bool) to detect if it has
+            // all components but still use available components if necessary.
             template <typename T, typename ... Ts>
             bool get_components(const EntityID entity_id, T* &first, Ts*&... rest) {
                 auto mask = create_component_mask<T, Ts...>(entity_id, first, rest...);
@@ -164,12 +111,12 @@ namespace rh {
             }
 
 
-            const EntityVector get_entities(); 
-
             ///////////////////////////////////////////////////////////////////
 
             void init_component(const unsigned int&, BaseComponent*);
 
+            // Create a system. Each system will be processed every frame by
+            // self::process()
             template <typename SystemType, typename ... Args>
             SystemType* create_system(Args && ... args) {
                 // TODO: Remove return value (i think). Should be doing things
@@ -181,78 +128,65 @@ namespace rh {
             }
 
             ///////////////////////////////////////////////////////////////////
+            
+            // Called every frame
             void process(sf::RenderWindow *window);     
+
+        private:
+
+            // Each system controls interactions for certain nodes.
+            SystemsVector systems_;
+
+            // Component mask for an entity - indexed by entity ID
+            std::vector<ComponentMask> component_masks_;
+
+            // Nested vector; component ID indexes into vector indexed by
+            // entity ID
+            std::vector<std::vector<std::shared_ptr<BaseComponent>>> components_;
+
+            // All nodes created indexed by entity id
+            std::vector<std::vector<NodePtr>> nodes_; 
+
+            // Next entity to use
+            std::atomic<EntityID> next_entity_id_;
+
+            // TODO: Track free'd entity id's
+
+
+            // Track node registrations. Nodes register themselves by calling
+            // EntityManager::register_node
+            static NodeFactories node_factories;
+
+            // Generate component mask AND set component_ptr to matching
+            // pointer (if any). We are mixing concerns a little bit here. What
+            // we want to do is generate a mask that represents a list of
+            // components. We use this to test against a entity to see if it
+            // has all the components. We then need a way to get all the
+            // relevant components for that entity - so we just do it as we go
+            // and assign it to a pointer.
+            //
+            // @param entity_id this is used to determine whether we set
+            // component_ptr or not.
+            // @param component_ptr pointer to a component - will be set if
+            // entity has this component
+            //
+            // @return ComponentMask
+            template <typename T>
+            ComponentMask create_component_mask(
+                    const EntityID entity_id, T* &component_ptr);
+
+
+            // We recursively reduce until we have a single template argument
+            // which is handled above.
+            //
+            // @see create_component_mask() above
+            template <typename T1, typename T2, typename ... Ts>
+            ComponentMask create_component_mask(
+                    const EntityID entity_id, T1* &first, T2* &second, Ts*&... rest);
+
 
     };
 }
 
-// This is because we have forward declared Entity above. If we don't do this
-// any class that include EntityManager would also need to include Entity
-// otherwise the compiler will give errors 
-#include "entity.hpp"
-
-namespace rh {
-    template <typename ComponentType, typename ... Args>
-    ComponentType* EntityManager::add_component(const EntityID entity_id, Args && ... args) {
-        if (entity_id >= next_entity_id_) {
-            throw std::runtime_error("Can't add component to invalid entity id");
-        }
-        auto ptr = std::shared_ptr<ComponentType>(
-                new ComponentType(std::forward<Args>(args) ...));
-        auto group_id = ptr->get_group_id();
-        if (components_.size() <= group_id) {
-            components_.resize(group_id + 1);
-        }
-        if (components_[group_id].size() <= entity_id) {
-            components_[group_id].resize(entity_id+1);
-        }
-        components_[group_id][entity_id] = ptr;
-
-        component_masks_[entity_id] |= 1 << group_id;
-
-        init_component(entity_id, ptr.get());
-
-        //if (nodes_.size() <= entity_id) {
-        //nodes_[entity_id].resize(entity_id+1);
-        //}
-
-        for (auto factory : node_factories) {
-            auto m = std::get<0>(factory);
-            if (m == (m & component_masks_[entity_id])) {
-                Entity entity(this, entity_id);
-                auto ptr = std::get<1>(factory)(entity, systems_);
-                auto masks = ptr->get_group_ids();
-                for (auto mask : masks) {
-                    ptr->init(this, entity_id);
-                    std::cout << "Mask: " << mask << std::endl;
-                }
-                //nodes_[entity_id].push_back(ptr);
-                std::cout << "Factory " << typeid(ptr).name() << " - ";
-                std::cout << "Entity " << entity_id << "matches!" << std::endl;
-            } else {
-                std::cout << "No match" << std::endl;
-            }
-        }
-
-        return ptr.get();
-    }
-
-
-    template <typename T1>
-    ComponentMask EntityManager::register_node() {
-        auto mask = T1::get_mask();
-        std::cout << "Register node " <<  mask << "\n";
-        NodeFactoryFunction func([mask] (Entity entity, SystemsVector &systems) {
-                // TODO: Memory leak
-                auto a = new T1(entity);
-                for (auto& system : systems) {
-                    system->add_node(a);
-                }
-                return a;
-                });
-        NodeRegistration reg(mask, func);
-        node_factories.push_back(reg);
-        return mask;
-    }
-
-}
+// Implementations for template functions
+#include "entitymanager.ipp"

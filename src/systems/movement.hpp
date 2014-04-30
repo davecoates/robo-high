@@ -4,7 +4,7 @@
 
 #include "../system.hpp"
 
-#include "../movementnode.hpp"
+#include "../nodes/movementnode.hpp"
 
 namespace rh {
 

@@ -59,6 +59,9 @@ namespace rh {
 
         public:
 
+
+        virtual void init() = 0;
+
         explicit Node(Entity entity) : entity_(entity) {}
 
         EntityID get_entity_id() { return entity_.id(); }

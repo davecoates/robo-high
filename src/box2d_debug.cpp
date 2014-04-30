@@ -45,7 +45,7 @@ namespace rh {
         window_->draw(circle);
     }
 
-    void Box2dDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color) {
+    void Box2dDebugDraw::DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2&, const b2Color& color) {
         // What should this actually draw? What is axis for?
         sf::CircleShape circle(radius * scale_);
         circle.setOrigin(radius * scale_, radius * scale_);

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "node.hpp"
-#include "components/physics.hpp"
-#include "components/transformable.hpp"
+#include "../node.hpp"
+#include "../components/physics.hpp"
+#include "../components/transformable.hpp"
 
 namespace rh {
 
@@ -13,9 +13,7 @@ namespace rh {
         components::Physics *physics_;
         components::Transformable *transformable_;
 
-        std::string get_type() { return "Physics"; }
-
-        void init(EntityManager* em, EntityID entity_id);
+        void init();
 
     };
 

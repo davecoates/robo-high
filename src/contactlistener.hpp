@@ -6,7 +6,7 @@
 
 #include "entity.hpp"
 #include "components/contactsensor.hpp"
-#include "physicsnode.hpp"
+#include "nodes/physicsnode.hpp"
 
 namespace rh {
 

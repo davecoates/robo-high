@@ -3,9 +3,10 @@
 #include <SFML/Graphics.hpp>
 #include <Box2d/Box2D.h>
 #include "entity.hpp"
-#include "entitymanager.hpp"
 
 namespace rh {
+
+    class EntityManager;
 
     class Robo : public sf::Drawable,  public sf::Transformable, public Entity {
         private:

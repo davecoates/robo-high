@@ -1,8 +1,8 @@
 #pragma once
 
-#include "node.hpp"
-#include "components/renderable.hpp"
-#include "components/transformable.hpp"
+#include "../node.hpp"
+#include "../components/renderable.hpp"
+#include "../components/transformable.hpp"
 
 namespace rh {
 
@@ -13,9 +13,7 @@ namespace rh {
         components::Renderable *renderable_;
         components::Transformable *transformable_;
 
-        std::string get_type() { return "Render"; }
-
-        void init(EntityManager* em, EntityID entity_id);
+        void init();
 
     };
 

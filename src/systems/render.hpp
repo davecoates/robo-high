@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../system.hpp"
-#include "../rendernode.hpp"
+#include "../nodes/rendernode.hpp"
 #include <set>
 
 namespace rh {
@@ -15,7 +15,6 @@ namespace rh {
             std::set<RenderNode*> render_nodes;
 
             void add_node(BaseNode *node) {
-                std::cout << "Type: " << node->get_type() << std::endl;
                 auto n = dynamic_cast<RenderNode*>(node);
                 if (n) {
                     render_nodes.insert(n);
