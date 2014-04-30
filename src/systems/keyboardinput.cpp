@@ -1,11 +1,37 @@
 #include "keyboardinput.hpp"
-#include "../components/movement.hpp"
-#include "../components/physics.hpp"
+#include "../components.hpp"
+#include "../entitymanager.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <iostream>
 
 namespace rh {
+
+    // Just for testing
+    static void generate_shape(EntityManager* em) {
+        auto entity = em->create_entity();
+        auto shape = new sf::CircleShape(1.0f);
+        shape->setFillColor(sf::Color::Red);
+        shape->setOrigin(1.0f, 1.0f);
+
+        b2BodyDef body_def;
+        body_def.position = b2Vec2(4.0f, 1.f);
+        body_def.type = b2_dynamicBody;
+
+        b2CircleShape body_shape;
+        body_shape.m_p.Set(0.0f, 0.0f);
+        body_shape.m_radius = 1.0f;
+        b2FixtureDef fixture;
+        fixture.density = 1.f;
+        fixture.friction = 0.7f;
+        fixture.shape = &body_shape;
+        fixture.restitution = 0.1f;
+
+
+        entity.add_component<rh::components::Renderable>(shape);
+        entity.add_component<rh::components::Transformable>(shape);
+        entity.add_component<rh::components::Physics>(body_def, fixture);
+    }
 
     void KeyboardInputSystem::process(sf::RenderWindow *window) {
 
@@ -15,6 +41,9 @@ namespace rh {
                 switch (key.code) {
                     case  sf::Keyboard::Escape:
                         window->close();
+                        break;
+                    case sf::Keyboard::I:
+                        generate_shape(em_);
                         break;
                     default:
                         break;

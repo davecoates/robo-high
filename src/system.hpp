@@ -6,14 +6,15 @@
 
 namespace rh {
 
+    class EntityManager;
 
     class System {
 
         protected:
-            void *em_;
+            EntityManager *em_;
 
         public:
-            System(void *em) : em_(em) {};
+            System(EntityManager *em);
 
             virtual void process(sf::RenderWindow *window) = 0;
 
