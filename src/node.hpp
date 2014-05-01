@@ -83,19 +83,5 @@ namespace rh {
 
 
 
-
-    // How about
-    /*
-     *
-    class System<typename N1, typename ... Ns> {
-        
-        static std::vector<ComponentMask> get_component_mask() {
-        }
-
-    }
-
-    class RenderSystem<RenderNode> {
-    }
-     */
 }
 
