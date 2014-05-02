@@ -5,7 +5,7 @@ SRCS = main.cpp robo.cpp app.cpp entitymanager.cpp component.cpp entity.cpp\
 	   contactlistener.cpp node.cpp \
 	   nodes/rendernode.cpp nodes/physicsnode.cpp nodes/movementnode.cpp
 OBJS = $(SRCS:%.cpp=../obj/%.o)
-LDFLAGS =-lsfml-graphics -lsfml-window -lsfml-system -lBox2d
+LDFLAGS =-framework sfml-graphics -framework sfml-window -framework sfml-system -lBox2d
 CXXFLAGS = -c -Wall -Wextra -std=c++11
 
 TARGET = ../bin/robo-high

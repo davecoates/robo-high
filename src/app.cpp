@@ -45,7 +45,7 @@ namespace rh {
         auto em = std::unique_ptr<EntityManager>(new EntityManager());
         em->create_system<MovementSystem>();
         auto keyboard_system = em->create_system<KeyboardInputSystem>();
-        auto physics_system = em->create_system<PhysicsSystem>();
+        em->create_system<PhysicsSystem>();
         em->create_system<RenderSystem>();
 
         auto robo = em->create_entity<Robo>();
@@ -63,7 +63,7 @@ namespace rh {
         em->add_component<rh::components::Renderable>(ground_id, ground_shape);
 
         b2BodyDef body_def;
-        body_def.position = b2Vec2(ground_w/2.f, 10.f);
+        body_def.position = b2Vec2(ground_w/2.f, 100.f*rh::SCREEN_RESOLUTION_RATIO);
         body_def.type = b2_staticBody;
         //body_def.angle = b2_pi / 180 * 10;
         //auto* ground = physics_system->create_body(body_def);
@@ -78,8 +78,8 @@ namespace rh {
 
         em->add_component<rh::components::Physics>(ground_id, body_def, ground_fixture);
 
-        Box2dDebugDraw debug(window_.get());
-        physics_system->set_debug_draw(debug);
+        //Box2dDebugDraw debug(window_.get());
+        //physics_system->set_debug_draw(debug);
 
         //
         sf::Clock clock;

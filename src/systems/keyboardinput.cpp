@@ -49,6 +49,12 @@ namespace rh {
                     case sf::Keyboard::I:
                         generate_shape(em_);
                         break;
+                    case sf::Keyboard::A:
+                        em_->add_component<rh::components::Movement>(0);
+                        break;
+                    case sf::Keyboard::R:
+                        em_->remove_component<rh::components::Movement>(0);
+                        break;
                     case sf::Keyboard::D:
                         if (entities.size()) {
                             em_->remove_entity(entities.back());

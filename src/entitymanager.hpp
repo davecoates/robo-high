@@ -114,6 +114,11 @@ namespace rh {
             ComponentType* add_component(const EntityID entity_id, Args && ... args); 
 
 
+            // Remove a component from an entity. Cleans up nodes.
+            template <typename ComponentType>
+            void remove_component(const EntityID entity_id);
+
+
             // Get a single component for an entity and return a pointer to it
             //
             // Returns nullptr if entity does not have requested component

@@ -13,7 +13,7 @@ namespace rh {
             sf::RectangleShape shape_;
             sf::CircleShape circle;
             sf::Texture texture;
-            sf::Shader shader;
+            //sf::Shader shader;
 
             virtual void draw(sf::RenderTarget& target, sf::RenderStates) const;
 

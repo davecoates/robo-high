@@ -14,7 +14,7 @@ namespace rh {
     void Robo::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         auto transform = this->getTransform();
-        states.shader = &shader;
+        //states.shader = &shader;
         states.transform = transform;
         target.draw(shape_, states);
         target.draw(circle, states);
@@ -33,10 +33,10 @@ namespace rh {
         }
         shape_.setTexture(&texture);
 
-        if (!shader.loadFromFile("../resources/bloom.frag", sf::Shader::Fragment)) {
-            throw std::runtime_error("Couldn't load shader");
-        }
-        shader.setParameter("sourceTexture", sf::Shader::CurrentTexture);
+        //if (!shader.loadFromFile("../resources/bloom.frag", sf::Shader::Fragment)) {
+            //throw std::runtime_error("Couldn't load shader");
+        //}
+        //shader.setParameter("sourceTexture", sf::Shader::CurrentTexture);
         circle.setTexture(&texture);
 
         circle.setRadius(1.f);
@@ -101,9 +101,9 @@ namespace rh {
 
     void Robo::update(const sf::Time &t) {
         //shader.setParameter("blur_radius", 0.03f);
-        shader.setParameter("sigma", 3.5f);
-        shader.setParameter("glowMultiplier", 1.5f);
-        shader.setParameter("width", 500.f);
+        //shader.setParameter("sigma", 3.5f);
+        //shader.setParameter("glowMultiplier", 1.5f);
+        //shader.setParameter("width", 500.f);
         circle.setRotation(t.asSeconds()*1000);
     }
 

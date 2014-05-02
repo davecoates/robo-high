@@ -68,12 +68,16 @@ namespace rh {
 
         Entity get_entity() { return entity_; }
 
+        ComponentMask get_component_mask() override {
+            return Node<C1, Cs...>::get_mask();
+        }
+
         static ComponentMask get_mask() {
             static auto mask = get_mask<C1, Cs...>();
             return mask;
         }
 
-        ComponentGroupIds get_group_ids() {
+        ComponentGroupIds get_group_ids() override {
             static ComponentGroupIds group_ids = get_group_ids<C1, Cs...>();
 
             return group_ids;
@@ -83,19 +87,5 @@ namespace rh {
 
 
 
-
-    // How about
-    /*
-     *
-    class System<typename N1, typename ... Ns> {
-        
-        static std::vector<ComponentMask> get_component_mask() {
-        }
-
-    }
-
-    class RenderSystem<RenderNode> {
-    }
-     */
 }
 

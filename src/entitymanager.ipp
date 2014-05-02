@@ -1,6 +1,7 @@
 // This is because we have forward declared Entity above. We need full
 // implementation for template functions below
 #include "entity.hpp"
+#include <cassert>
 
 namespace rh {
 
@@ -72,6 +73,28 @@ namespace rh {
 
         return component.get();
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename ComponentType>
+    void EntityManager::remove_component(const EntityID entity_id) {
+        auto group_id = Component<ComponentType>::get_group_id();
+
+        assert(components_.size() > group_id);
+        assert(components_[group_id].size() > entity_id);
+
+        // Destroy any nodes that use this component first
+        ComponentMask mask = 1 << group_id;
+        for (auto node : nodes_[entity_id]) {
+            if (mask == (node->get_component_mask() & mask)) {
+                for (auto& system : systems_) {
+                    system->remove_node(node.get());
+                }
+            }
+        }
+
+        components_[group_id][entity_id].reset();
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename T>
