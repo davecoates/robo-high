@@ -10,14 +10,14 @@ namespace rh {
     std::vector<EntityID> entities;
 
     // Just for testing
-    static void generate_shape(EntityManager* em) {
+    static void generate_shape(EntityManager* em, float x = 4.f, float y = 1.f) {
         auto entity = em->create_entity();
         auto shape = new sf::CircleShape(1.0f);
         shape->setFillColor(sf::Color::Red);
         shape->setOrigin(1.0f, 1.0f);
 
         b2BodyDef body_def;
-        body_def.position = b2Vec2(4.0f, 1.f);
+        body_def.position = b2Vec2(x, y);
         body_def.type = b2_dynamicBody;
 
         b2CircleShape body_shape;
@@ -40,6 +40,9 @@ namespace rh {
     void KeyboardInputSystem::process(sf::RenderWindow *window) {
 
         if (event_count_) {
+            auto p = sf::Mouse::getPosition();
+            auto window_p = window->getPosition();
+            float x = p.x - window_p.x , y = p.y - window_p.y ;
             for (unsigned int i =0; i < event_count_;i++) {
                 auto &key = event_pool_[i];
                 switch (key.code) {
@@ -47,7 +50,11 @@ namespace rh {
                         window->close();
                         break;
                     case sf::Keyboard::I:
-                        generate_shape(em_);
+                        // TESTING
+                        generate_shape(em_, 
+                                (x / rh::SCREEN_RESOLUTION_W) * 100.f,
+                                (y / rh::SCREEN_RESOLUTION_H) * 100.f * rh::SCREEN_RESOLUTION_RATIO
+                                );
                         break;
                     case sf::Keyboard::A:
                         em_->add_component<rh::components::Movement>(0);
